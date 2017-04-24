@@ -117,11 +117,8 @@ def t_error(t) :
   t.lexer.skip(1)
 
 
-"""
-    Launch analysis with system input
-"""
 
-import sys
+# Build lexer from this file
 lexer = lex.lex(debug=1)
 
 # start in TEXT state
@@ -130,7 +127,11 @@ lexer.begin('TEXT')
 # set lastlinepos to 0
 lexer.lastlinepos = 0
 
-lexer.input(sys.stdin.read())
-
-for token in lexer :
-  print("line %d : %s : '%s'"%(token.lineno, token.type, token.value))
+# Launch analysis with system input
+if __name__ == "__main__" :
+  import sys
+  
+  lexer.input(sys.stdin.read())
+  
+  for token in lexer :
+    print("line %d : %s : '%s'"%(token.lineno, token.type, token.value))
