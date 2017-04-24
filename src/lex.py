@@ -151,4 +151,4 @@ if __name__ == "__main__" :
   lexer.input(sys.stdin.read())
   
   for token in lexer :
-    print("line %d : %s : '%s'"%(token.lineno, token.type, token.value))
+    print("line %d : %s : %s"%(token.lineno, token.type, repr(token.value)))
