@@ -85,7 +85,6 @@ def t_CODE_VARIABLE(t) :
   t.type = reserved.get(t.value, 'VARIABLE')
   return t
 
-# TODO manage newline within string
 def t_CODE_STRING(t) :
   r'\'[a-zA-Z0-9:,;&<>"./\\\n\t _-]+\''
   t.value = t.value[1:-1]
