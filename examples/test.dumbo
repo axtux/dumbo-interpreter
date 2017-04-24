@@ -1,0 +1,13 @@
+before
+{{
+  nom := 'Anastasia';
+  nom := 'Moi';
+  print 'coucou '.nom;
+  
+  prenom := 'init';
+  for prenom in ('Michel', 'Daniel', 'Claudy')
+  do
+    print prenom;
+  endfor;
+}}
+after
