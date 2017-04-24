@@ -1,43 +1,134 @@
 import ply.lex as lex
 
-tokens = (
-  'TEXT',
-  'CODE',
-)
+"""
+    States
+"""
 
 states = (
-  ('text', 'exclusive'),
+  ('TEXT', 'inclusive'),
+  ('CODE', 'inclusive'),
 )
 
-def t_TEXT_START(t) :
-  r'}}'
-  t.lexer.begin('text')
+"""
+    States transitions
+"""
 
-# Text mode
-t_text_TEXT = r'[a-zA-Z0-9:,;&<>"./\\\n\t _-]+'
-
-def t_text_TEXT_END(t) :
+def t_TEXT_CODESTART(t) :
   r'{{'
-  t.lexer.begin('INITIAL')
+  t.lexer.begin('CODE')
+  return t
+
+def t_CODE_CODEEND(t) :
+  r'}}'
+  t.lexer.begin('TEXT')
+  return t
+
+
+"""
+    Tokens
+"""
+
+reserved = {
+  'print' : 'PRINT',
+  'for'   : 'FOR',
+  'in'    : 'IN',
+  'do'    : 'DO',
+  'endfor': 'ENDFOR',
+}
+
+tokens = [
+  # TEXT tokens
+  'TEXT',
+  # CODE tokens
+  'CODESTART',
+  'CODEEND',
+  
+  'ASSIGNATION',
+  'CONCATENATION',
+  'COMA',
+  'SEMICOLON',
+  
+  'LEFT_PARENTHESE',
+  'RIGHT_PARENTHESE',
+  
+  'VARIABLE',
+  'STRING',
+] + list(reserved.values())
+
+
+"""
+    TEXT lexemes
+"""
+
+def t_TEXT_TEXT(t) :
+  r'[a-zA-Z0-9:,;&<>"./\\\n\t _-]+'
+  update_line_info(t)
+  return t
+
+
+"""
+    CODE lexemes
+"""
+
+t_CODE_ASSIGNATION = r':='
+t_CODE_CONCATENATION = r'\.'
+t_CODE_COMA = r','
+t_CODE_SEMICOLON = r';'
+
+t_CODE_LEFT_PARENTHESE = r'\('
+t_CODE_RIGHT_PARENTHESE = r'\)'
+
+def t_CODE_VARIABLE(t) :
+  r'[a-zA-Z0-9_]+'
+  t.type = reserved.get(t.value, 'VARIABLE')
+  return t
+
+# TODO manage newline within string
+def t_CODE_STRING(t) :
+  r'\'[a-zA-Z0-9:,;&<>"./\\\n\t _-]+\''
+  t.value = t.value[1:-1]
+  update_line_info(t)
+  return t
+
+t_CODE_ignore = ' |\t'
+
+
+"""
+    Universal lexemes
+"""
 
 def t_NEWLINE(t) :
-  r'\n'
-  t.lexer.lineno += 1
+  r'\n+'
+  update_line_info(t)
+
+def update_line_info(t) :
+  t.lexer.lineno += t.value.count('\n')
+  lastlineindex = t.value.rfind('\n')
+  if lastlineindex != -1 :
+    t.lexer.lastlinepos = t.lexpos + lastlineindex+1
 
 # special token containing ignored characters (not regex)
-t_ignore = ' |\t'
+t_ignore = ''
 
-# special token
 def t_error(t) :
-  print("Illegal character '%s'"%t.value[0])
+  print("Skipping illegal character %s on line %s, column %s"%(t.value[0], t.lineno, t.lexpos-t.lexer.lastlinepos))
   t.lexer.skip(1)
 
 
+"""
+    Launch analysis with system input
+"""
+
 import sys
 lexer = lex.lex(debug=1)
-# start in text mode
-lexer.begin('text')
+
+# start in TEXT state
+lexer.begin('TEXT')
+
+# set lastlinepos to 0
+lexer.lastlinepos = 0
+
 lexer.input(sys.stdin.read())
 
 for token in lexer :
-  print("line %d : %s (%s)"%(token.lineno, token.type, token.value))
+  print("line %d : %s : '%s'"%(token.lineno, token.type, token.value))
