@@ -37,12 +37,14 @@ reserved = {
 }
 
 tokens = [
-  # TEXT tokens
-  'TEXT',
-  # CODE tokens
+  # transitions tokens
   'CODESTART',
   'CODEEND',
   
+  # TEXT tokens
+  'TEXT',
+  
+  # CODE tokens
   'ASSIGNATION',
   'CONCATENATION',
   'COMA',
