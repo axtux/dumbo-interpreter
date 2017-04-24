@@ -139,6 +139,9 @@ lexer = lex.lex(debug=debug)
 # start in TEXT state
 lexer.begin('TEXT')
 
+# set lineno to 0
+lexer.lineno = 0
+
 # set lastlinepos to 0
 lexer.lastlinepos = 0
 
