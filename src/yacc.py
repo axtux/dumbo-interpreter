@@ -97,7 +97,6 @@ def p_stringnext_stringnext(p) :
   '''stringnext : string COMA stringnext'''
   p[0] = [p[1]]
   p[0] = p[0] + p[3]
-  print('list is now', p[0])
 
 def p_error(p) :
   yacc_error(p.lineno, 'Syntax error')
