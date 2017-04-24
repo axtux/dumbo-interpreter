@@ -116,10 +116,25 @@ def t_error(t) :
   print("Skipping illegal character %s on line %s, column %s"%(t.value[0], t.lineno, t.lexpos-t.lexer.lastlinepos))
   t.lexer.skip(1)
 
+"""
+    read arguments from command line
+"""
 
+debug = 0
+
+import sys
+
+for arg in sys.argv :
+  if arg == '-d' or arg == '--debug' :
+    debug = 1
+
+
+"""
+    Init lexer
+"""
 
 # Build lexer from this file
-lexer = lex.lex(debug=1)
+lexer = lex.lex(debug=debug)
 
 # start in TEXT state
 lexer.begin('TEXT')
@@ -127,10 +142,12 @@ lexer.begin('TEXT')
 # set lastlinepos to 0
 lexer.lastlinepos = 0
 
-# Launch analysis with system input
+
+"""
+    Launch analysis with system input if main script
+"""
+
 if __name__ == "__main__" :
-  import sys
-  
   lexer.input(sys.stdin.read())
   
   for token in lexer :
