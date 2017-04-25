@@ -36,8 +36,6 @@ reserved = {
   'endfor': 'ENDFOR',
   'and'   : 'AND',
   'or'    : 'OR',
-  'true'  : 'TRUE',
-  'false' : 'FALSE',
 }
 
 tokens = [
@@ -65,6 +63,7 @@ tokens = [
   'DIVIDE',
 
   'VARIABLE',
+  'BOOLEAN',
   'INTEGER',
   'STRING',
 ] + list(reserved.values())
@@ -104,6 +103,11 @@ t_CODE_COMPARATOR = r'<|>|!=|='
 def t_CODE_INTEGER(t) :
   r'[0-9]+'
   t.value = int( t.value)
+  return t
+
+def t_CODE_BOOLEAN(t) :
+  r'true|false'
+  t.value = True if t.value == 'true' else False
   return t
 
 def t_CODE_VARIABLE(t) :
