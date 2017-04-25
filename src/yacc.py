@@ -16,7 +16,7 @@ def p_program_subprogram(p) :
 
 def p_subprogram_text(p) :
   '''subprogram : TEXT'''
-  p[0] = [('print', ('string', p[1]))]
+  p[0] = [('print', p[1])]
 
 def p_subprogram_code(p) :
   '''subprogram : code'''
@@ -68,7 +68,7 @@ def p_string_var(p) :
 
 def p_string_string(p) :
   '''string : STRING'''
-  p[0] = ('string', p[1])
+  p[0] = p[1]
 
 def p_enumarable_stringlist(p) :
   '''enumarable : stringlist'''
