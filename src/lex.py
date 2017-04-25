@@ -53,6 +53,14 @@ tokens = [
   'LEFT_PARENTHESE',
   'RIGHT_PARENTHESE',
   
+	'PLUS'
+	'MINUS'
+	'TIMES'
+	'DIVIDE'
+	'INTEGER'
+
+	'BOOLEAN'
+
   'VARIABLE',
   'STRING',
 ] + list(reserved.values())
@@ -80,8 +88,21 @@ t_CODE_SEMICOLON = r';'
 t_CODE_LEFT_PARENTHESE = r'\('
 t_CODE_RIGHT_PARENTHESE = r'\)'
 
+
+t_CODE_PLUS = r'\+'
+t_CODE_MINUS = r'-'
+t_CODE_TIMES = r'\*'
+t_CODE_DIVIDE = r'/+'
+
+t_CODE_BOOLEAN = r'true|false'
+
+def t_CODE_INTEGER(t) :
+	r'[0-9]+'
+	t.value = int( t.value)
+	return t
+
 def t_CODE_VARIABLE(t) :
-  r'[a-zA-Z0-9_]+'
+  r'[a-zA-Z_].([a-zA-Z_]|[0_9])*'
   t.type = reserved.get(t.value, 'VARIABLE')
   return t
 
