@@ -24,9 +24,12 @@ def main() :
     print('output file {} already exists')
     return
   
-  program = data + template
-  code = parser.parse(program)
-  result = dumbo_exec(code)
+  data_code = parser.parse(data)
+  template_code = parser.parse(template)
+  
+  # only save variables from data, not output
+  result = dumbo_exec(data_code)
+  result = dumbo_exec(template_code)
   
   if file_put_contents(output_name, result) :
     print('Result saved successfully into {}'.format(output_name))
