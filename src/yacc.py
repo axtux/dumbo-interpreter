@@ -74,6 +74,10 @@ def p_enumarable_stringlist(p) :
   '''enumarable : stringlist'''
   p[0] = p[1]
 
+def p_enumarable_variable(p) :
+  '''enumarable : VARIABLE'''
+  p[0] = ('variable', p[1])
+
 def p_stringlist(p) :
   '''stringlist : LEFT_PARENTHESE stringnext RIGHT_PARENTHESE'''
   p[0] = p[2]

@@ -14,14 +14,19 @@ def dumbo_exec(arg) :
   if c == 'print' :
     print(str_val(arg[1]))
   elif c == 'assign' :
-    assign(arg[1], arg[2])
+    set_var(arg[1], arg[2])
   elif c == 'for' :
     varname = arg[1]
-    enumerable = arg[2]
+    array = arg[2]
+    if is_tuple(array) and array[0] == 'variable' :
+      array = get_var(array[1])
     code = arg[3]
-    for value in enumerable :
-      assign(varname, value)
+    
+    oldval = get_var(varname)
+    for value in array :
+      set_var(varname, value)
       dumbo_exec(code)
+    set_var(varname, oldval)
   else :
     print('Unknown command {}'.format(c))
 
@@ -29,7 +34,7 @@ def str_val(arg) :
   if arg[0] == 'string' :
     return arg[1]
   elif arg[0] == 'variable' :
-    value = var_value(arg[1])
+    value = get_var(arg[1])
     if not is_string(value) :
       print('Variable {} is not a string'.format(arg[1]))
     return value
@@ -40,8 +45,10 @@ def str_val(arg) :
   
   
 
-def assign(name, value) :
-  if value[0] == 'stringlist' :
+def set_var(name, value) :
+  if value == None :
+    return
+  if is_array(value) :
     variables[name] = value
   else :
     variables[name] = str_val(value)
@@ -49,10 +56,11 @@ def assign(name, value) :
     #print('Error assigning {} to {}'.format(value, name))
   
 
-def var_value(name) :
+def get_var(name) :
   if name in variables :
     return variables[name]
   
+  print('Error : no variable named {}'.format(name))
   return None
 
 def error(message) :
