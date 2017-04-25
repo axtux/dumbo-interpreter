@@ -41,11 +41,13 @@ def p_codeline_instruction(p) :
 
 
 def p_instruction_print(p) :
-  '''instruction : PRINT longstring'''
+  '''instruction : PRINT stringop'''
   p[0] = ('print', p[2])
 
-def p_instruction_assign_string(p) :
-  '''instruction : VARIABLE ASSIGNATION longstring
+def p_instruction_assign(p) :
+  '''instruction : VARIABLE ASSIGNATION boolop
+                 | VARIABLE ASSIGNATION intop
+                 | VARIABLE ASSIGNATION stringop
                  | VARIABLE ASSIGNATION stringlist'''
   p[0] = ('assign', p[1], p[3])
 
@@ -53,18 +55,44 @@ def p_instruction_for(p) :
   '''instruction : FOR VARIABLE IN enumarable DO codeblock ENDFOR'''
   p[0] = ('for', p[2], p[4], p[6])
 
+def p_instruction_if(p) :
+  '''instruction : IF boolop DO codeblock ENDIF'''
+  p[0] = ('if', p[2], p[4])
 
-def p_longstring_concat(p) :
-  '''longstring : longstring CONCATENATION string'''
-  p[0] = ('concat', p[1], p[3])
+def p_boolop_boolop_bool(p) :
+  '''boolop : boolop AND bool
+            | boolop OR bool'''
+  p[0] = ('boolean', p[2], p[1], p[3])
 
-def p_printable_string(p) :
-  '''longstring : string'''
+def p_boolop_bool(p) :
+  '''boolop : bool'''
   p[0] = p[1]
 
+def p_bool_boolean(p) :
+  '''bool : BOOLEAN'''
+  p[0] = p[1]
+
+def p_bool_comparison(p) :
+  '''bool : comparison'''
+  p[0] = p[1]
+
+def p_comparison(p) :
+  '''comparison : intop COMPARATOR intop'''
+  p[0] = ('comparison', p[2], p[1], p[3])
+
+
+def p_stringop_concat(p) :
+  '''stringop : stringop CONCATENATION string'''
+  p[0] = ('concat', p[1], p[3])
+
+def p_stringop_string(p) :
+  '''stringop : string'''
+  p[0] = p[1]
+
+
 def p_string_var(p) :
-  '''string : VARIABLE'''
-  p[0] = ('variable', p[1])
+  '''string : variable'''
+  p[0] = p[1]
 
 def p_string_string(p) :
   '''string : STRING'''
@@ -75,8 +103,8 @@ def p_enumarable_stringlist(p) :
   p[0] = p[1]
 
 def p_enumarable_variable(p) :
-  '''enumarable : VARIABLE'''
-  p[0] = ('variable', p[1])
+  '''enumarable : variable'''
+  p[0] = p[1]
 
 def p_stringlist(p) :
   '''stringlist : LEFT_PARENTHESE stringnext RIGHT_PARENTHESE'''
@@ -90,13 +118,13 @@ def p_stringnext_stringnext(p) :
   '''stringnext : string COMA stringnext'''
   p[0] = [p[1]] + p[3]
 
-def p_expression_plus_minus(p):
-  '''expression : expression PLUS term
-                | expression MINUS term'''
+def p_intop_plus_minus(p):
+  '''intop : intop PLUS term
+           | intop MINUS term'''
   p[0] = ('arithmetic', p[2], p[1] , p[3])
 
-def p_expression_term(p):
-  '''expression : term'''
+def p_intop_term(p):
+  '''intop : term'''
   p[0] = p[1]
 
 def p_term_times_divide(p):
@@ -111,6 +139,14 @@ def p_term_factor(p):
 def p_factor_num(p):
   '''factor : INTEGER'''
   p[0] = p[1]
+
+def p_factor_variable(p):
+  '''factor : variable'''
+  p[0] = p[1]
+
+def p_variable(p) :
+  '''variable : VARIABLE'''
+  p[0] = ('variable', p[1])
 
 def p_error(p) :
   yacc_error(p.lineno, 'Syntax error')
