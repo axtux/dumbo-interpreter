@@ -90,33 +90,27 @@ def p_stringnext_stringnext(p) :
   '''stringnext : string COMA stringnext'''
   p[0] = [p[1]] + p[3]
 
-def p_expression_plus(p):
-    'expression : expression PLUS term'
-    p[0] = ('+', p[1] , p[3])
-
-def p_expression_minus(p):
-    'expression : expression MINUS term'
-    p[0] = ('-', p[1] , p[3])
+def p_expression_plus_minus(p):
+  '''expression : expression PLUS term
+                | expression MINUS term'''
+  p[0] = (p[2], p[1] , p[3])
 
 def p_expression_term(p):
-    'expression : term'
-    p[0] = p[1]
+  '''expression : term'''
+   p[0] = p[1]
 
-def p_term_times(p):
-    'term : term TIMES factor'
-    p[0] = ('*', p[1], p[3] )
-
-def p_term_div(p):
-    'term : term DIVIDE factor'
-    p[0] = ('/', p[1] , p[3])
+def p_term_times_divide(p):
+  '''term : term TIMES factor
+          | term DIVIDE factor'''
+  p[0] = (p[2], p[1], p[3] )
 
 def p_term_factor(p):
-    'term : factor'
-    p[0] = p[1]
+  '''term : factor'''
+  p[0] = p[1]
 
 def p_factor_num(p):
-    'factor : INTEGER'
-    p[0] = p[1]
+  '''factor : INTEGER'''
+  p[0] = p[1]
 
 def p_error(p) :
   yacc_error(p.lineno, 'Syntax error')
