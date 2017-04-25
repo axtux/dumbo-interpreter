@@ -34,6 +34,8 @@ reserved = {
   'in'    : 'IN',
   'do'    : 'DO',
   'endfor': 'ENDFOR',
+  'if'    : 'IF',
+  'endif' : 'ENDIF',
   'and'   : 'AND',
   'or'    : 'OR',
 }
@@ -74,7 +76,8 @@ tokens = [
 """
 
 def t_TEXT_TEXT(t) :
-  r'[a-zA-Z0-9:,;&<>"./\\\n\t _-]+'
+  r'(?:[^{]|{[^{])+'
+  #r'[a-zA-Z0-9:,;&<>"./\\\n\t _-]+'
   update_line_info(t)
   return t
 
@@ -116,7 +119,8 @@ def t_CODE_VARIABLE(t) :
   return t
 
 def t_CODE_STRING(t) :
-  r'\'[a-zA-Z0-9:,;&<>"./\\\n\t _-]+\''
+  r'\'.*?\''
+  #r'\'[a-zA-Z0-9:,;&<>"./\\\n\t =_-]+\''
   t.value = t.value[1:-1]
   update_line_info(t)
   return t
@@ -169,7 +173,7 @@ lexer = lex.lex(debug=debug)
 lexer.begin('TEXT')
 
 # set lineno to 0
-lexer.lineno = 0
+lexer.lineno = 1
 
 # set lastlinepos to 0
 lexer.lastlinepos = 0
