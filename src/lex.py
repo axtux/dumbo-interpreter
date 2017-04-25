@@ -49,22 +49,23 @@ tokens = [
   'TEXT',
   
   # CODE tokens
-  'ASSIGNATION',
-  'CONCATENATION',
   'COMA',
   'SEMICOLON',
   
   'LEFT_PARENTHESE',
   'RIGHT_PARENTHESE',
   
-  'COMPARATOR'
-  'PLUS'
-  'MINUS'
-  'TIMES'
-  'DIVIDE'
-  'INTEGER'
+  'ASSIGNATION',
+  'CONCATENATION',
+  'COMPARATOR',
+  
+  'PLUS',
+  'MINUS',
+  'TIMES',
+  'DIVIDE',
 
   'VARIABLE',
+  'INTEGER',
   'STRING',
 ] + list(reserved.values())
 
@@ -97,7 +98,8 @@ t_CODE_MINUS = r'-'
 t_CODE_TIMES = r'\*'
 t_CODE_DIVIDE = r'/+'
 
-t_CODE_COMPARATOR = r'<|>|!=|=''
+t_CODE_COMPARATOR = r'<|>|!=|='
+
 
 def t_CODE_INTEGER(t) :
   r'[0-9]+'
