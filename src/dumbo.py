@@ -41,7 +41,10 @@ def dumbo_exec(arg) :
 
 
 def dumbo_print(var) :
-  return get_value(var)
+  val get_value(var)
+  if val == None :
+    return ''
+  return val
 
 def dumbo_assign(name, value) :
   if is_var(name) :
@@ -90,9 +93,15 @@ def get_value(var) :
     if l == 3 and var[0] == 'concat' :
       p1 = get_value(var[1])
       p2 = get_value(var[2])
-      if not is_string(p1) or not is_string(p1) :
+      if not is_string(p1) or not is_string(p2) :
         return error('concat arguments must be string, got {} and {}'.format(p1, p2))
       return p1 + p2
+    if l == 2 and var[0] == '+' :
+      p1 = get_value(var[1])
+      p2 = get_value(var[2])
+      if not is_int(p1) or not is_int(p2) :
+        return error('concat arguments must be string, got {} and {}'.format(p1, p2))
+    
     return error('value should not be unidentified tuple {}'.format(var))
   
   # no tuple, return raw value
@@ -121,6 +130,9 @@ def is_tuple(var) :
 
 def is_string(var) :
   return type('') == type(var)
+
+def is_int(var) :
+  return type(0) == type(var)
 
 def is_bool(var) :
   return type(True) == type(var)
