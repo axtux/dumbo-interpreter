@@ -20,6 +20,9 @@ def main() :
     return
   
   output_name = sys.argv[3]
+  if file_get_contents(output_name) != None :
+    print('output file {} already exists')
+    return
   
   program = data + template
   code = parser.parse(program)
