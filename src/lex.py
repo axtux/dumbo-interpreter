@@ -98,7 +98,6 @@ t_CODE_TIMES = r'\*'
 t_CODE_DIVIDE = r'/+'
 
 t_CODE_COMPARATOR = r'<|>|!=|=''
-	
 
 def t_CODE_INTEGER(t) :
   r'[0-9]+'
