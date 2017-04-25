@@ -97,7 +97,7 @@ def p_expression_plus_minus(p):
 
 def p_expression_term(p):
   '''expression : term'''
-   p[0] = p[1]
+  p[0] = p[1]
 
 def p_term_times_divide(p):
   '''term : term TIMES factor
