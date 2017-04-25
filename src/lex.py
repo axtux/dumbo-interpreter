@@ -60,6 +60,8 @@ tokens = [
 	'INTEGER'
 
 	'BOOLEAN'
+	'OR'
+	'AND'
 
   'VARIABLE',
   'STRING',
@@ -95,6 +97,8 @@ t_CODE_TIMES = r'\*'
 t_CODE_DIVIDE = r'/+'
 
 t_CODE_BOOLEAN = r'true|false'
+t_CODE_AND = r'and'
+t_CODE_OR = r'or'
 
 def t_CODE_INTEGER(t) :
 	r'[0-9]+'
