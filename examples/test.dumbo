@@ -4,10 +4,13 @@ before
   nom := 'Moi';
   print 'coucou '.nom;
   
+  list := ('Michel', 'Daniel', 'Claudy');
+  
   prenom := 'init';
-  for prenom in ('Michel', 'Daniel', 'Claudy')
+  for prenom in list
   do
     print prenom;
+    print 'ok';
   endfor;
 }}
 after
