@@ -93,7 +93,7 @@ def p_stringnext_stringnext(p) :
 def p_expression_plus_minus(p):
   '''expression : expression PLUS term
                 | expression MINUS term'''
-  p[0] = (p[2], p[1] , p[3])
+  p[0] = ('arithmetic', p[2], p[1] , p[3])
 
 def p_expression_term(p):
   '''expression : term'''
@@ -102,7 +102,7 @@ def p_expression_term(p):
 def p_term_times_divide(p):
   '''term : term TIMES factor
           | term DIVIDE factor'''
-  p[0] = (p[2], p[1], p[3] )
+  p[0] = ( 'arithmetic', p[2], p[1], p[3] )
 
 def p_term_factor(p):
   '''term : factor'''
