@@ -106,7 +106,7 @@ def t_CODE_INTEGER(t) :
   return t
 
 def t_CODE_VARIABLE(t) :
-  r'[a-zA-Z_].([a-zA-Z_]|[0_9])*'
+  r'[a-zA-Z_][a-zA-Z_0-9]*'
   t.type = reserved.get(t.value, 'VARIABLE')
   return t
 
