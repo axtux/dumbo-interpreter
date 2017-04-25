@@ -34,6 +34,10 @@ reserved = {
   'in'    : 'IN',
   'do'    : 'DO',
   'endfor': 'ENDFOR',
+  'and'   : 'AND',
+  'or'    : 'OR',
+  'true'  : 'TRUE',
+  'false' : 'FALSE',
 }
 
 tokens = [
@@ -53,16 +57,11 @@ tokens = [
   'LEFT_PARENTHESE',
   'RIGHT_PARENTHESE',
   
-	'PLUS'
-	'MINUS'
-	'TIMES'
-	'DIVIDE'
-	'INTEGER'
-
-	'BOOLEAN'
-	'ARITHMETIQUE'
-	'OR'
-	'AND'
+  'PLUS'
+  'MINUS'
+  'TIMES'
+  'DIVIDE'
+  'INTEGER'
 
   'VARIABLE',
   'STRING',
@@ -97,15 +96,13 @@ t_CODE_MINUS = r'-'
 t_CODE_TIMES = r'\*'
 t_CODE_DIVIDE = r'/+'
 
-t_CODE_BOOLEAN = r'true|false'
-t_CODE_ARITHMETIQUE = r'<|>|!=|='
-t_CODE_AND = r'and'
-t_CODE_OR = r'or'
+t_CODE_ARITHMETIQUE = r'<|>|!=|=''
+	
 
 def t_CODE_INTEGER(t) :
-	r'[0-9]+'
-	t.value = int( t.value)
-	return t
+  r'[0-9]+'
+  t.value = int( t.value)
+  return t
 
 def t_CODE_VARIABLE(t) :
   r'[a-zA-Z_].([a-zA-Z_]|[0_9])*'
