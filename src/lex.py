@@ -60,6 +60,7 @@ tokens = [
 	'INTEGER'
 
 	'BOOLEAN'
+	'ARITHMETIQUE'
 	'OR'
 	'AND'
 
@@ -97,6 +98,7 @@ t_CODE_TIMES = r'\*'
 t_CODE_DIVIDE = r'/+'
 
 t_CODE_BOOLEAN = r'true|false'
+t_CODE_ARITHMETIQUE = r'<|>|!=|='
 t_CODE_AND = r'and'
 t_CODE_OR = r'or'
 
