@@ -2,6 +2,7 @@ import sys
 
 from yacc import parser
 from dumbo import dumbo_exec
+from files import *
 
 def main() :
   argc = len(sys.argv)
@@ -35,26 +36,6 @@ def main() :
     print('Result saved successfully into {}'.format(output_name))
   else :
     print('output file {} not writable'.format(output_name))
-
-
-def file_get_contents(filename) :
-  try :
-    f = open(filename, 'r')
-  except OSError :
-    return None
-  contents = f.read()
-  f.close()
-  return contents
-
-def file_put_contents(filename, contents) :
-  try :
-    f = open(filename, 'w')
-  except OSError :
-    return False
-  f.write(contents)
-  f.close()
-  return True
-
 
 if __name__ == "__main__" :
   main()
