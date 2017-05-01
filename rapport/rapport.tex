@@ -17,6 +17,14 @@ Dans le cadre du cours de Compilation donné en 3 ème Bachelier, nous avons dû
 capable de générer un fichier contenant du texte en fonction de certaines données reçues en paramètre.
 Pour ce faire, le langage de programmation utilisé est le Python.
 \section{Grammaire}
+Nous avons essayé de respecter au mieux la grammaire donnée, initialement dans l'énoncé du projet.
+Cependant, nous avons procédé à quelques ajouts et modifications afin d'atteindre les objectis demandés dans 
+l'énoncé.\\
+Pour les opérateurs arithmétiques, nous avons pris la peine de définir dans la grammaire les variables ``term'' ainsi que ``factor'' afin d'éviter
+le cas où la grammaire serait ambiguë.\\
+Concernant l'ajout des booleans, nous nous sommes inspirés du cours. Nous commençons avec la variable boolop qui dérive sur une autre variable
+boolop, un opérateur ``AND'' ou ``OR'' ainsi que la variable bool. Cette dernière correpond au lexème boolean ou à la variable ``comparison''.
+Qui est le résultat de deux variables ``intop'' muni d'un lexème comparator.
 \subsection{Le ``For''}
 \subsection{Le ``If''}
 \section{Problèmes rencontrés}
