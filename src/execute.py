@@ -2,26 +2,6 @@ import inspect
 
 variables = {}
 
-def execute(args) :
-  """
-  Executes dumbo instruction or serie of instructions and return output.
-  """
-  # exec each instruction in the array
-  if is_array(args) :
-    r = ''
-    for instruction in args :
-      r += execute(instruction)
-    return r
-  
-  if not is_tuple(args) or len(args) < 1 :
-    error('Expecting tuple with minimum size 1, got {}'.format(args))
-    return ''
-  
-  # dumbo function
-  r = call_function('dumbo_'+args[0], args[1:])
-  return '' if r == None else r
-
-
 def call_function(name, args) :
   """
   call function from function name and arguments tuple
@@ -47,13 +27,38 @@ def call_function(name, args) :
   return fct(*args)
 
 def args_len(fct) :
+  """
+  get the number of arguments possible for function fct
+  """
   return len(inspect.signature(fct).parameters)
 
+
+def execute(args) :
+  """
+  Executes dumbo instruction or serie of instructions and return output.
+  """
+  # exec each instruction in the array
+  if is_array(args) :
+    r = ''
+    for instruction in args :
+      r += execute(instruction)
+    return r
+  
+  if not is_tuple(args) or len(args) < 1 :
+    error('Expecting tuple with minimum size 1, got {}'.format(args))
+    return ''
+  
+  # dumbo function
+  r = call_function('dumbo_'+args[0], args[1:])
+  return '' if r == None else r
+
+
+"""
+start dumbo functions
+"""
 def dumbo_print(var) :
   val = get_value(var)
-  if is_string(val) or is_bool(val) or is_int(val) :
-    return str(val)
-  return ''
+  return str(val)
 
 def dumbo_assign(name, value) :
   if is_var(name) :
@@ -71,76 +76,47 @@ def dumbo_for(varname, array, code) :
   
   oldval = get_var(varname)
   r = ''
-  
   for value in array :
     set_var(varname, value)
     r += execute(code)
   
   if oldval != None :
     set_var(varname, oldval)
+  
   return r
 
 def dumbo_if(condition, code) :
   condition = get_value(condition)
   if not is_bool(condition) :
-    error('is argument 1 must be boolean, got {}'.format(array))
+    error('if argument 1 must be boolean, got {}'.format(array))
     return ''
   
   if condition :
     return execute(code)
   
   return ''
+"""
+end dumbo functions
+"""
 
+def get_value(args) :
+  """
+  get value from value function if args is a tuple else return args
+  """
+  if is_tuple(args) and len(args) > 0 :
+    return call_function('value_'+args[0], args[1:])
+  
+  return args
 
-def set_var(name, value) :
-  variables[name] = value
+"""
+start value functions
+"""
+def value_variable(name) :
+  if not is_var(name) :
+    return error('undefined variable {}'.format(name))
+  return get_var(name)
 
-def is_var(name) :
-  return name in variables
-
-def get_var(name) :
-  if is_var(name) :
-    return variables[name]
-  return None
-
-def get_value(var) :
-  if not is_tuple(var) or len(var) < 1 :
-    # no tuple, return raw value
-    return var
-  
-  l = len(var)
-  c = var[0]
-  
-  if c == 'variable' :
-    if not arg_check(c, l-1, 1) :
-      return None
-    if not is_var(var[1]) :
-      return error('undefined variable {}'.format(array[1]))
-    return get_var(var[1])
-  
-  if c == 'concat' :
-    if not arg_check(c, l-1, 2) :
-      return None
-    return dumbo_concat(var[1], var[2])
-  
-  if c == 'arithmetic' :
-    if not arg_check(c, l-1, 3) :
-      return None
-    return dumbo_arithmetic(var[1], var[2], var[3])
-  
-  if c == 'boolean' :
-    if not arg_check(c, l-1, 3) :
-      return None
-    return dumbo_bool(var[1], var[2], var[3])
-  
-  if c == 'comparison' :
-    if not arg_check(c, l-1, 3) :
-      return None
-    return dumbo_compare(var[1], var[2], var[3])
-  
-  return error('value should not be unidentified tuple {}'.format(var))
-
-def dumbo_concat(var1, var2) :
+def value_concat(var1, var2) :
   var1 = get_value(var1)
   var2 = get_value(var2)
   
@@ -149,7 +125,7 @@ def dumbo_concat(var1, var2) :
   
   return var1 + var2
 
-def dumbo_arithmetic(op, var1, var2) :
+def value_arithmetic(op, var1, var2) :
     var1 = get_value(var1)
     var2 = get_value(var2)
     
@@ -168,7 +144,7 @@ def dumbo_arithmetic(op, var1, var2) :
       return int(var1 / var2)
     return error('unknown arithmetic operation {}'.format(op))
 
-def dumbo_bool(op, var1, var2) :
+def value_boolean(op, var1, var2) :
     var1 = get_value(var1)
     var2 = get_value(var2)
     
@@ -181,7 +157,7 @@ def dumbo_bool(op, var1, var2) :
       return var1 or var2
     return error('unknown boolean operation {}'.format(op))
 
-def dumbo_compare(op, var1, var2) :
+def value_comparison(op, var1, var2) :
     var1 = get_value(var1)
     var2 = get_value(var2)
     
@@ -197,14 +173,20 @@ def dumbo_compare(op, var1, var2) :
     if op == '!=' :
       return var1 != var2
     return error('unknown comparison operation {}'.format(op))
+"""
+and value functions
+"""
 
+def set_var(name, value) :
+  variables[name] = value
 
-def arg_check(command, arg_len, expected_len) :
-  if arg_len == expected_len :
-    return True
-  
-  error('Expecting {} arguments for command "{}", {} given'.format(l))
-  return False
+def is_var(name) :
+  return name in variables
+
+def get_var(name) :
+  if is_var(name) :
+    return variables[name]
+  return None
 
 def warning(message) :
   print('WARNING:', message)
