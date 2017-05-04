@@ -2,6 +2,8 @@ import inspect
 
 variables = {}
 
+# TODO init functions not to call globals, callable and args_len on each function
+
 def call_function(name, args) :
   """
   call function from function name and arguments tuple
