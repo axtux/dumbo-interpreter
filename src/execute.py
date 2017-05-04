@@ -1,52 +1,53 @@
+import inspect
+
 variables = {}
 
-def dumbo_exec(arg) :
-  if is_array(arg) :
+def execute(args) :
+  """
+  Executes dumbo instruction or serie of instructions and return output.
+  """
+  # exec each instruction in the array
+  if is_array(args) :
     r = ''
-    for instr in arg :
-      r += dumbo_exec(instr)
+    for instruction in args :
+      r += execute(instruction)
     return r
   
-  if not is_tuple(arg) or len(arg) < 1:
-    error('Expecting tuple with minimum size 1, got {}'.format(arg))
+  if not is_tuple(args) or len(args) < 1 :
+    error('Expecting tuple with minimum size 1, got {}'.format(args))
     return ''
   
-  l = len(arg)
-  
-  # dumbo command
-  c = arg[0]
-  
-  if c == 'print' :
-    if not arg_check(c, l-1, 1) :
-      return ''
-    
-    return dumbo_print(arg[1])
-  
-  
-  if c == 'assign' :
-    if not arg_check(c, l-1, 2) :
-      return ''
-    
-    return dumbo_assign(arg[1], arg[2])
-  
-  
-  if c == 'for' :
-    if not arg_check(c, l-1, 3) :
-      return ''
-    
-    return dumbo_for(arg[1], arg[2], arg[3])
-  
-  
-  if c == 'if' :
-    if not arg_check(c, l-1, 2) :
-      return ''
-    
-    return dumbo_if(arg[1], arg[2])
-  
-  
-  error('unknown command {}'.format(c))
-  return ''
+  # dumbo function
+  r = call_function('dumbo_'+args[0], args[1:])
+  return '' if r == None else r
 
+
+def call_function(name, args) :
+  """
+  call function from function name and arguments tuple
+  """
+  # get module namespace
+  g = globals()
+  if not name in g :
+    return error('function {} is not defined'.format(name))
+  
+  fct = g[name]
+  if not callable(fct) :
+    return error('{} is not a callable'.format(fct))
+  
+  if args == None :
+    args = ()
+  
+  if not is_tuple(args) :
+    return error('args must be a tuple, got {}'.format(args))
+  
+  if len(args) != args_len(fct) :
+    return error('expected {} arguments, got {}'.format(args_len(fct), len(args)))
+  
+  return fct(*args)
+
+def args_len(fct) :
+  return len(inspect.signature(fct).parameters)
 
 def dumbo_print(var) :
   val = get_value(var)
@@ -73,7 +74,7 @@ def dumbo_for(varname, array, code) :
   
   for value in array :
     set_var(varname, value)
-    r += dumbo_exec(code)
+    r += execute(code)
   
   if oldval != None :
     set_var(varname, oldval)
@@ -86,7 +87,7 @@ def dumbo_if(condition, code) :
     return ''
   
   if condition :
-    return dumbo_exec(code)
+    return execute(code)
   
   return ''
 
@@ -198,7 +199,6 @@ def dumbo_compare(op, var1, var2) :
     return error('unknown comparison operation {}'.format(op))
 
 
-
 def arg_check(command, arg_len, expected_len) :
   if arg_len == expected_len :
     return True
@@ -243,6 +243,6 @@ if __name__ == "__main__" :
     print('Code is :')
     pprint(code)
   
-  result = dumbo_exec(code)
+  result = execute(code)
   print(result)
 
