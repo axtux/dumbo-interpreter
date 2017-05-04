@@ -98,7 +98,7 @@ t_CODE_RIGHT_PARENTHESE = r'\)'
 t_CODE_PLUS = r'\+'
 t_CODE_MINUS = r'-'
 t_CODE_TIMES = r'\*'
-t_CODE_DIVIDE = r'/+'
+t_CODE_DIVIDE = r'/'
 
 t_CODE_COMPARATOR = r'<|>|!=|='
 
@@ -172,10 +172,8 @@ lexer = lex.lex(debug=debug)
 # start in TEXT state
 lexer.begin('TEXT')
 
-# set lineno to 0
+# set line references
 lexer.lineno = 1
-
-# set lastlinepos to 0
 lexer.lastlinepos = 0
 
 
