@@ -119,7 +119,8 @@ def t_CODE_VARIABLE(t) :
   return t
 
 def t_CODE_STRING(t) :
-  r'\'.*?\''
+  r'\'(?:.|\n)*?\''
+  # . does not match newline
   #r'\'[a-zA-Z0-9:,;&<>"./\\\n\t =_-]+\''
   t.value = t.value[1:-1]
   update_line_info(t)
