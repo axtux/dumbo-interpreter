@@ -90,7 +90,7 @@ def dumbo_for(varname, array, code) :
 def dumbo_if(condition, code) :
   condition = get_value(condition)
   if not is_bool(condition) :
-    error('if argument 1 must be boolean, got {}'.format(array))
+    error('if argument 1 must be boolean, got {}'.format(condition))
     return ''
   
   if condition :
