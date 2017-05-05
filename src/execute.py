@@ -2,22 +2,23 @@ import inspect
 
 from _is_ import *
 
-variables = {}
-
-# TODO init functions not to call globals, callable and args_len on each function
+def init_functions() :
+  """Store functions of this module into functions dictionary to later call functions from name.
+  Also store the number of arguments accepted by each function into functions_args dictionary.
+  Storing references avoid future lookups for functions and arguments length.
+  """
+  for name, fct in globals().items() :
+    if not callable(fct) :
+      continue
+    functions[name] = fct
+    functions_args[name] = args_len(fct)
 
 def call_function(name, args) :
   """
   call function from function name and arguments tuple
   """
-  # get module namespace
-  g = globals()
-  if not name in g :
+  if not name in functions :
     return error('function {} is not defined'.format(name))
-  
-  fct = g[name]
-  if not callable(fct) :
-    return error('{} is not a callable'.format(fct))
   
   if args == None :
     args = ()
@@ -25,10 +26,10 @@ def call_function(name, args) :
   if not is_tuple(args) :
     return error('args must be a tuple, got {}'.format(args))
   
-  if len(args) != args_len(fct) :
-    return error('expected {} arguments, got {}'.format(args_len(fct), len(args)))
+  if functions_args[name] != len(args) :
+    return error('expected {} arguments, got {}'.format(functions_args[name], len(args)))
   
-  return fct(*args)
+  return functions[name](*args)
 
 def args_len(fct) :
   """
@@ -198,6 +199,15 @@ def warning(message) :
 def error(message) :
   print('ERROR:', message)
 
+"""
+Initialize variable and function dictionaries
+"""
+
+variables = {}
+functions = {}
+functions_args = {}
+
+init_functions()
 
 if __name__ == "__main__" :
   import sys
