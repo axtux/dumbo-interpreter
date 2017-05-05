@@ -95,4 +95,4 @@ parsetab.py
 # PyDev files
 .project
 .pydevproject
-
+.settings
