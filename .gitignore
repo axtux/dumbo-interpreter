@@ -92,3 +92,7 @@ ENV/
 parser.out
 parsetab.py
 
+# PyDev files
+.project
+.pydevproject
+
