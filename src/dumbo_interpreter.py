@@ -25,7 +25,7 @@ def main() :
   template_code = parser.parse(template)
   
   # only save variables from data, not output
-  result = execute(data_code)
+  execute(data_code)
   result = execute(template_code)
   
   if file.put_contents(output_name, result) :
