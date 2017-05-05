@@ -1,5 +1,7 @@
 import inspect
 
+from _is_ import *
+
 variables = {}
 
 # TODO init functions not to call globals, callable and args_len on each function
@@ -196,20 +198,6 @@ def warning(message) :
 def error(message) :
   print('ERROR:', message)
 
-def is_array(var) :
-  return type([]) == type(var)
-
-def is_tuple(var) :
-  return type(()) == type(var)
-
-def is_string(var) :
-  return type('') == type(var)
-
-def is_int(var) :
-  return type(0) == type(var)
-
-def is_bool(var) :
-  return type(True) == type(var)
 
 if __name__ == "__main__" :
   import sys
