@@ -1,5 +1,5 @@
 
-def file_get_contents(filename) :
+def get_contents(filename) :
   try :
     f = open(filename, 'r')
   except OSError :
@@ -8,7 +8,7 @@ def file_get_contents(filename) :
   f.close()
   return contents
 
-def file_put_contents(filename, contents) :
+def put_contents(filename, contents) :
   try :
     f = open(filename, 'w')
   except OSError :
