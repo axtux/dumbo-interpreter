@@ -1,8 +1,10 @@
 before
 {{
+  ln := '
+';
   nom := 'Anastasia';
   nom := 'Moi';
-  print 'coucou '.nom;
+  print 'coucou '.nom.ln;
   
   list := ('Michel', 'Daniel', 'Claudy');
   
@@ -10,7 +12,10 @@ before
   for prenom in list
   do
     print prenom;
+    print ln;
     print 'ok';
+    print ln;
   endfor;
+  print prenom;
 }}
 after
