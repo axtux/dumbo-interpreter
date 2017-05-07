@@ -1,3 +1,4 @@
+import sys
 from ply import lex
 
 """
@@ -150,39 +151,33 @@ def t_error(t) :
   print("Skipping illegal character %s on line %s, column %s"%(t.value[0], t.lineno, t.lexpos-t.lexer.lastlinepos))
   t.lexer.skip(1)
 
-"""
-    read arguments from command line
-"""
 
-debug = 0
+def reset() :
+  # start in TEXT state
+  lexer.begin('TEXT')
+  
+  # reset line references
+  lexer.lineno = 1
+  lexer.lexpos = 0
+  lexer.lastlinepos = 0
 
-import sys
+def init() :
+  'read command line arguments and init lexer'
+  debug = 0
+  
+  for arg in sys.argv :
+    if arg == '-d' or arg == '--debug' :
+      debug = 1
+  
+  # init lexer with defined tokens in this file
+  global lexer
+  lexer = lex.lex(debug=debug)
+  reset()
 
-for arg in sys.argv :
-  if arg == '-d' or arg == '--debug' :
-    debug = 1
-
-
-"""
-    Init lexer
-"""
-
-# Build lexer from this file
-lexer = lex.lex(debug=debug)
-
-# start in TEXT state
-lexer.begin('TEXT')
-
-# set line references
-lexer.lineno = 1
-lexer.lastlinepos = 0
-
-
-"""
-    Launch analysis with system input if main script
-"""
+init()
 
 if __name__ == "__main__" :
+  'analyze standard input'
   lexer.input(sys.stdin.read())
   
   for token in lexer :
