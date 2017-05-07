@@ -1,61 +1,100 @@
 import inspect
+import operator
 
 from _is_ import *
 
-def init_functions() :
+def init() :
   """Store functions of this module into functions dictionary to later call functions from name.
   Also store the number of arguments accepted by each function into functions_args dictionary.
   Storing references avoid future lookups for functions and arguments length.
   """
+  global variables, functions
+  
+  # initialize variables dictionary
+  variables = {}
+  
+  # dynamically build functions dictionary storing all functions from this module
+  '''
+  functions = {
+    name : (args_len, fct),
+    ...
+  }
+  '''
+  functions = {}
   for name, fct in globals().items() :
     if not callable(fct) :
       continue
-    functions[name] = fct
-    functions_args[name] = args_len(fct)
+    functions[name] = (args_len(fct), fct)
+  
+  # check operations dictionary for errors
+  for name, desc in operations.items() :
+    if not is_tuple(desc) :
+      print('expected operation desciption to be a tuple, {} given'.format(desc))
+    
+    if len(desc) != 3 :
+      print('expected 3 arguments per operation description, {} given for {}'.format(len(desc), name))
+    
+    (args_type, args_l, fct) = desc
+    if not is_string(args_type) :
+      print('expected args_type to be string, {} given for {}'.format(args_type, name))
+    
+    if not 'is_'+args_type in functions :
+      print('unknown type {} for {}'.format(args_type, name))
+    
+    if not is_int(args_l) :
+      print('expected args_len to be string, {} given for {}'.format(args_l, name))
+    
+    if args_l < 0 :
+      print('expected args_len to be >= 0, {} given for {}'.format(args_l, name))
+    
+    if not callable(fct) :
+      print('expected function to be callable, {} given for {}'.format(fct, name))
 
-def call_function(name, args) :
-  """
-  call function from function name and arguments tuple
-  """
-  if not name in functions :
-    return error('function {} is not defined'.format(name))
-  
-  if args == None :
-    args = ()
-  
-  if not is_tuple(args) :
-    return error('args must be a tuple, got {}'.format(args))
-  
-  if functions_args[name] != len(args) :
-    return error('expected {} arguments, got {}'.format(functions_args[name], len(args)))
-  
-  return functions[name](*args)
+def reset() :
+  '''
+  reset variables for next instructions to be executed in clean environement
+  '''
+  global variables
+  variables = {}
 
 def args_len(fct) :
   """
-  get the number of arguments possible for function fct
+  get the number of arguments from function signature
   """
   return len(inspect.signature(fct).parameters)
 
 
 def execute(args) :
   """
-  Executes dumbo instruction or serie of instructions and return output.
+  Executes dumbo instruction or instructions array and return output.
+  Return None and stop execution if an error occurs. Details will be printed to standard output.
   """
   # exec each instruction in the array
   if is_array(args) :
     r = ''
     for instruction in args :
-      r += execute(instruction)
+      re = execute(instruction)
+      if re == None :
+        return None
+      r += re
     return r
   
   if not is_tuple(args) or len(args) < 1 :
-    error('Expecting tuple with minimum size 1, got {}'.format(args))
+    error('instruction must be tuple with minimum size 1, got {}'.format(args))
     return ''
   
   # dumbo function
-  r = call_function('dumbo_'+args[0], args[1:])
-  return '' if r == None else r
+  fct_name = 'dumbo_'+args[0]
+  args = args[1:]
+  
+  if not fct_name in functions :
+    return error('function {} is not defined'.format(fct_name))
+  
+  (args_len, fct) = functions[fct_name]
+  if args_len != len(args) :
+    return error('expected {} arguments for function {}, got {}'.format(args_len, fct_name, len(args)))
+  
+  return fct(*args)
 
 
 """
@@ -76,14 +115,16 @@ def dumbo_assign(name, value) :
 def dumbo_for(varname, array, code) :
   array = get_value(array)
   if not is_array(array) :
-    error('for argument 2 must be array, got {}'.format(array))
-    return ''
+    return error('for argument 2 must be array, got {}'.format(array))
   
   oldval = get_var(varname)
   r = ''
   for value in array :
     set_var(varname, value)
-    r += execute(code)
+    re = execute(code)
+    if re == None :
+      return None
+    r += re
   
   if oldval != None :
     set_var(varname, oldval)
@@ -93,8 +134,7 @@ def dumbo_for(varname, array, code) :
 def dumbo_if(condition, code) :
   condition = get_value(condition)
   if not is_bool(condition) :
-    error('if argument 1 must be boolean, got {}'.format(condition))
-    return ''
+    return error('if argument 1 must be boolean, got {}'.format(condition))
   
   if condition :
     return execute(code)
@@ -108,78 +148,63 @@ def get_value(args) :
   """
   get value from value function if args is a tuple else return args
   """
-  if is_tuple(args) and len(args) > 0 :
-    return call_function('value_'+args[0], args[1:])
+  if not is_tuple(args) or len(args) < 1 :
+    return args
   
-  return args
+  op = args[0]
+  args = args[1:]
+  
+  if not op in operations :
+    return print('unnown operation {}'.format(op))
+  
+  (args_type, args_len, fct) = operations[op]
+  if args_len != len(args) :
+    return print('operation {} expected {} arguments, {} given'.format(op, args_len, len(args)))
+  
+  # recursively get value on operation arguments
+  args = tuple(map(get_value, args))
+  
+  (_, check) = functions['is_'+args_type]
+  if not all(map(check, args)) :
+    return print('operation {} expected arguments of type {}, got {}'.format(op, args_type, args))
+  
+  return fct(*args)
+
 
 """
-start value functions
+start operations
 """
-def value_variable(name) :
+def operation_variable(name) :
   if not is_var(name) :
     return error('undefined variable {}'.format(name))
   return get_var(name)
 
-def value_concat(var1, var2) :
-  var1 = get_value(var1)
-  var2 = get_value(var2)
-  
-  if not is_string(var1) or not is_string(var2) :
-    return error('concat arguments must be string, got {} and {}'.format(var1, var2))
-  
-  return var1 + var2
+def operation_division(var1, var2) :
+    if var2 == 0 :
+      return error('trying to divide {} by 0'.format(var1))
+    return operator.floordiv(var1, var2)
 
-def value_arithmetic(op, var1, var2) :
-    var1 = get_value(var1)
-    var2 = get_value(var2)
-    
-    if not is_int(var1) or not is_int(var2) :
-      return error('arithmetic {} arguments must be integers, got {} and {}'.format(op, var1, var2))
-    
-    if op == '+' :
-      return var1 + var2
-    if op == '-' :
-      return var1 - var2
-    if op == '*' :
-      return int(var1 * var2)
-    if op == '/' :
-      if var2 == 0 :
-        return error('trying to divide {} by 0'.format(var1))
-      return int(var1 / var2)
-    return error('unknown arithmetic operation {}'.format(op))
+# 'op_name' : ('args_type', args_len', function)
+operations = {
+  'variable' : ('string', 1, operation_variable),
+  # string
+  '.' : ('string', 2, operator.concat),
+  # int
+  '+'  : ('int', 2, operator.add),
+  '-'  : ('int', 2, operator.sub),
+  '*'  : ('int', 2, operator.mul),
+  '/'  : ('int', 2, operation_division),
+  '<'  : ('int', 2, operator.lt),
+  '>'  : ('int', 2, operator.gt),
+  '='  : ('int', 2, operator.eq),
+  '!=' : ('int', 2, operator.ne),
+  # bool
+  'and' : ('bool', 2, lambda a, b : a and b),
+  'or'  : ('bool', 2, lambda a, b : a or b),
+}
 
-def value_boolean(op, var1, var2) :
-    var1 = get_value(var1)
-    var2 = get_value(var2)
-    
-    if not is_bool(var1) or not is_bool(var2) :
-      return error('boolean {} arguments must be booleans, got {} and {}'.format(op, var1, var2))
-    
-    if op == 'and' :
-      return var1 and var2
-    if op == 'or' :
-      return var1 or var2
-    return error('unknown boolean operation {}'.format(op))
-
-def value_comparison(op, var1, var2) :
-    var1 = get_value(var1)
-    var2 = get_value(var2)
-    
-    if not is_int(var1) or not is_int(var2) :
-      return error('compare {} arguments must be integers, got {} and {}'.format(op, var1, var2))
-    
-    if op == '<' :
-      return var1 < var2
-    if op == '>' :
-      return var1 > var2
-    if op == '=' :
-      return var1 == var2
-    if op == '!=' :
-      return var1 != var2
-    return error('unknown comparison operation {}'.format(op))
 """
-and value functions
+end operations
 """
 
 def set_var(name, value) :
@@ -200,14 +225,9 @@ def error(message) :
   print('ERROR:', message)
 
 """
-Initialize variable and function dictionaries
+Initialize variable and function dictionaries, check operations dictionary
 """
-
-variables = {}
-functions = {}
-functions_args = {}
-
-init_functions()
+init()
 
 if __name__ == "__main__" :
   import sys
