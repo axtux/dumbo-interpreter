@@ -1,6 +1,8 @@
+import sys
+import file
 from ply import yacc
 # import lex.py lexemes
-from lex import tokens
+from lex import tokens, reset
 
 """
     Grammar definition
@@ -62,7 +64,7 @@ def p_instruction_if(p) :
 def p_boolop_boolop_bool(p) :
   '''boolop : boolop AND bool
             | boolop OR bool'''
-  p[0] = ('boolean', p[2], p[1], p[3])
+  p[0] = (p[2], p[1], p[3])
 
 def p_boolop_bool(p) :
   '''boolop : bool'''
@@ -78,12 +80,12 @@ def p_bool_comparison(p) :
 
 def p_comparison(p) :
   '''comparison : intop COMPARATOR intop'''
-  p[0] = ('comparison', p[2], p[1], p[3])
+  p[0] = (p[2], p[1], p[3])
 
 
 def p_stringop_concat(p) :
   '''stringop : stringop CONCATENATION string'''
-  p[0] = ('concat', p[1], p[3])
+  p[0] = (p[2], p[1], p[3])
 
 def p_stringop_string(p) :
   '''stringop : string'''
@@ -121,7 +123,7 @@ def p_stringnext_stringnext(p) :
 def p_intop_plus_minus(p):
   '''intop : intop PLUS term
            | intop MINUS term'''
-  p[0] = ('arithmetic', p[2], p[1] , p[3])
+  p[0] = (p[2], p[1] , p[3])
 
 def p_intop_term(p):
   '''intop : term'''
@@ -130,7 +132,7 @@ def p_intop_term(p):
 def p_term_times_divide(p):
   '''term : term TIMES factor
           | term DIVIDE factor'''
-  p[0] = ( 'arithmetic', p[2], p[1], p[3] )
+  p[0] = (p[2], p[1], p[3] )
 
 def p_term_factor(p):
   '''term : factor'''
@@ -156,33 +158,40 @@ def p_error(p) :
     Custom functions
 """
 def yacc_warning(lineno, message) :
-  print('WARNING', 'on line', lineno, ':', message)
+  print('WARNING', 'in file', filename, 'on line', lineno, ':', message)
 
 def yacc_error(lineno, message) :
-  print('ERROR:', 'on line', lineno, ':', message)
+  print('ERROR:',  'in file', filename, 'on line', lineno, ':', message)
 
-"""
-    read arguments from command line
-"""
 
-debug = 0
+def parse_file(file_name) :
+  global filename
+  filename = file_name
+  
+  data = file.get_contents(filename)
+  if data == None :
+    return print('file "{}" not readable'.format(filename))
+  
+  reset()
+  return parser.parse(data)
 
-import sys
 
-for arg in sys.argv :
-  if arg == '-d' or arg == '--debug' :
-    debug = 1
+def init() :
+  'read command line arguments and init parser'
+  debug = 0
+  
+  for arg in sys.argv :
+    if arg == '-d' or arg == '--debug' :
+      debug = 1
+  
+  # init parser with defined grammar in this file
+  global parser
+  parser = yacc.yacc(debug=debug)
 
-"""
-    Init parser
-"""
-parser = yacc.yacc(debug=debug)
-
-"""
-    Launch parsing with system input if main script
-"""
+init()
 
 if __name__ == "__main__" :
+  'parse standard input'
   result = parser.parse(sys.stdin.read())
   
   #print('Output is {!r}'.format(result))
