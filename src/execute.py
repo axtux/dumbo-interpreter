@@ -224,27 +224,30 @@ def warning(message) :
 def error(message) :
   print('ERROR:', message)
 
+
+def main() :
+  import sys
+  from yacc import parse_file
+  
+  argc = len(sys.argv)
+  if argc < 2 :
+    exit('Usage: python3 {} file_to_parse'.format(sys.argv[0]))
+  
+  code = parse_file(sys.argv[1])
+  if code == None :
+    return
+  
+  r = execute(code)
+  if r == None :
+    return print('error executing file {}'.format(sys.argv[1]))
+  
+  print('Execution result :\n{}'.format(r))
+
 """
 Initialize variable and function dictionaries, check operations dictionary
 """
 init()
 
 if __name__ == "__main__" :
-  import sys
-  
-  debug = 0
-  for arg in sys.argv :
-    if arg == '-d' or arg == '--debug' :
-      debug = 1
-  
-  from yacc import parser
-  code = parser.parse(sys.stdin.read())
-  
-  if debug == 1 :
-    from pprint import pprint
-    print('Code is :')
-    pprint(code)
-  
-  result = execute(code)
-  print(result)
+  main()
 

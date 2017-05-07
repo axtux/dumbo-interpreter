@@ -188,14 +188,19 @@ def init() :
   global parser
   parser = yacc.yacc(debug=debug)
 
+def main() :
+  argc = len(sys.argv)
+  if argc < 2 :
+    exit('Usage: python3 {} file_to_parse'.format(sys.argv[0]))
+  
+  result = parse_file(sys.argv[1])
+  if result != None :
+    from pprint import pprint
+    print('Output is :\n')
+    pprint(result)
+
+
 init()
 
 if __name__ == "__main__" :
-  'parse standard input'
-  result = parser.parse(sys.stdin.read())
-  
-  #print('Output is {!r}'.format(result))
-  print('Output is :\n')
-  
-  from pprint import pprint
-  pprint(result)
+  main()

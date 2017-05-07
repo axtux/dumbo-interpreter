@@ -174,11 +174,26 @@ def init() :
   lexer = lex.lex(debug=debug)
   reset()
 
-init()
 
-if __name__ == "__main__" :
-  'analyze standard input'
-  lexer.input(sys.stdin.read())
+def main() :
+  import file
+  
+  argc = len(sys.argv)
+  if argc < 2 :
+    exit('Usage: python3 {} file_to_parse'.format(sys.argv[0]))
+  
+  data = file.get_contents(sys.argv[1])
+  if data == None :
+    return print('file "{}" not readable'.format(filename))
+  
+  lexer.input(data)
   
   for token in lexer :
     print('line {} : {} : {!r} '.format(token.lineno, token.type, token.value))
+
+
+
+init()
+
+if __name__ == "__main__" :
+  main()
