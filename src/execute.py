@@ -80,8 +80,7 @@ def execute(args) :
     return r
   
   if not is_tuple(args) or len(args) < 1 :
-    error('instruction must be tuple with minimum size 1, got {}'.format(args))
-    return ''
+    return error('instruction must be tuple with minimum size 1, got {}'.format(args))
   
   # dumbo function
   fct_name = 'dumbo_'+args[0]
