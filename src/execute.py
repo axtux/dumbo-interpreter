@@ -30,25 +30,36 @@ def init() :
   for name, desc in operations.items() :
     if not is_tuple(desc) :
       print('expected operation description to be a tuple, {} given'.format(desc))
+      break
     
-    if len(desc) != 3 :
-      print('expected 3 arguments per operation description, {} given for {}'.format(len(desc), name))
+    if len(desc) != 4 :
+      print('expected 4 arguments per operation description, {} given for {}'.format(len(desc), name))
+      break
     
-    (args_type, args_l, fct) = desc
+    (args_type, args_l, fct, infos) = desc
     if not is_string(args_type) :
       print('expected args_type to be string, {} given for {}'.format(args_type, name))
+      break
     
     if not 'is_'+args_type in functions :
       print('unknown type {} for {}'.format(args_type, name))
+      break
     
     if not is_int(args_l) :
       print('expected args_len to be string, {} given for {}'.format(args_l, name))
+      break
     
     if args_l < 0 :
       print('expected args_len to be >= 0, {} given for {}'.format(args_l, name))
+      break
     
     if not callable(fct) :
       print('expected function to be callable, {} given for {}'.format(fct, name))
+      break
+    
+    if not is_bool(infos) :
+      print('expected incl_infos to be boolean, {} given for {}'.format(fct, name))
+      break
 
 def reset() :
   '''
@@ -99,22 +110,22 @@ def execute(args) :
 """
 start dumbo functions
 """
-def dumbo_print(var) :
+def dumbo_print(infos, var) :
   val = get_value(var)
   return None if val == None else str(val)
 
-def dumbo_assign(name, value) :
+def dumbo_assign(infos, name, value) :
   if is_var(name) :
-    warning('reassigning already assigned variable {}'.format(name))
+    warning('{} reassigning already assigned variable {}'.format(infos, name))
   value = get_value(value)
   if not value == None :
     set_var(name, value)
   return ''
 
-def dumbo_for(varname, array, code) :
+def dumbo_for(infos, varname, array, code) :
   array = get_value(array)
   if not is_array(array) :
-    return error('for argument 2 must be array, got {}'.format(array))
+    return error('{} for argument 2 must be array, got {}'.format(infos, array))
   
   oldval = get_var(varname)
   r = ''
@@ -130,10 +141,10 @@ def dumbo_for(varname, array, code) :
   
   return r
 
-def dumbo_if(condition, code) :
+def dumbo_if(infos, condition, code) :
   condition = get_value(condition)
   if not is_bool(condition) :
-    return error('if argument 1 must be boolean, got {}'.format(condition))
+    return error('{} if argument 1 must be boolean, got {}'.format(infos, condition))
   
   if condition :
     return execute(code)
@@ -147,25 +158,29 @@ def get_value(args) :
   """
   get value from value function if args is a tuple else return args
   """
-  if not is_tuple(args) or len(args) < 1 :
+  if not is_tuple(args) or len(args) < 2 :
     return args
   
   op = args[0]
-  args = args[1:]
+  infos = args[1]
+  args = args[2:]
   
   if not op in operations :
-    return print('unknown operation {}'.format(op))
+    return print('{} unknown operation {}'.format(infos, op))
   
-  (args_type, args_len, fct) = operations[op]
+  (args_type, args_len, fct, incl_infos) = operations[op]
   if args_len != len(args) :
-    return print('operation {} expected {} arguments, {} given'.format(op, args_len, len(args)))
+    return print('{} operation {} expected {} arguments, {} given'.format(infos, op, args_len, len(args)))
   
   # recursively get value on operation arguments
   args = tuple(map(get_value, args))
   
   (_, check) = functions['is_'+args_type]
   if not all(map(check, args)) :
-    return print('operation {} expected arguments of type {}, got {}'.format(op, args_type, args))
+    return print('{} operation {} expected arguments of type {}, got {}'.format(infos, op, args_type, args))
+  
+  if incl_infos :
+    args = (infos,) + args
   
   return fct(*args)
 
@@ -173,33 +188,33 @@ def get_value(args) :
 """
 start operations
 """
-def operation_variable(name) :
+def operation_variable(infos, name) :
   if not is_var(name) :
-    return error('undefined variable {}'.format(name))
+    return error('{} undefined variable {}'.format(infos, name))
   return get_var(name)
 
-def operation_division(var1, var2) :
+def operation_division(infos, var1, var2) :
     if var2 == 0 :
-      return error('trying to divide {} by 0'.format(var1))
+      return error('{} division by 0'.format(infos))
     return operator.floordiv(var1, var2)
 
-# 'op_name' : ('args_type', args_len', function)
+# 'op_name' : ('args_type', args_len, function, incl_infos)
 operations = {
-  'variable' : ('string', 1, operation_variable),
+  'variable' : ('string', 1, operation_variable, True),
   # string
-  '.' : ('string', 2, operator.concat),
+  '.' : ('string', 2, operator.concat, False),
   # int
-  '+'  : ('int', 2, operator.add),
-  '-'  : ('int', 2, operator.sub),
-  '*'  : ('int', 2, operator.mul),
-  '/'  : ('int', 2, operation_division),
-  '<'  : ('int', 2, operator.lt),
-  '>'  : ('int', 2, operator.gt),
-  '='  : ('int', 2, operator.eq),
-  '!=' : ('int', 2, operator.ne),
+  '+'  : ('int', 2, operator.add, False),
+  '-'  : ('int', 2, operator.sub, False),
+  '*'  : ('int', 2, operator.mul, False),
+  '/'  : ('int', 2, operation_division, True),
+  '<'  : ('int', 2, operator.lt, False),
+  '>'  : ('int', 2, operator.gt, False),
+  '='  : ('int', 2, operator.eq, False),
+  '!=' : ('int', 2, operator.ne, False),
   # bool
-  'and' : ('bool', 2, lambda a, b : a and b),
-  'or'  : ('bool', 2, lambda a, b : a or b),
+  'and' : ('bool', 2, lambda a, b : a and b, False),
+  'or'  : ('bool', 2, lambda a, b : a or b, False),
 }
 
 """
@@ -226,13 +241,13 @@ def error(message) :
 
 def main() :
   import sys
-  from yacc import parse_file
+  import yacc
   
   argc = len(sys.argv)
   if argc < 2 :
     exit('Usage: python3 {} file_to_parse'.format(sys.argv[0]))
   
-  code = parse_file(sys.argv[1])
+  code = yacc.parse_file(sys.argv[1])
   if code == None :
     return
   

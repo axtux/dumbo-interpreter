@@ -17,7 +17,7 @@ def p_program_subprogram(p) :
 
 def p_subprogram_text(p) :
   '''subprogram : TEXT'''
-  p[0] = [('print', p[1])]
+  p[0] = [('print', infos(p), p[1])]
 
 def p_subprogram_code(p) :
   '''subprogram : code'''
@@ -42,28 +42,28 @@ def p_codeline_instruction(p) :
 
 def p_instruction_print(p) :
   '''instruction : PRINT stringop'''
-  p[0] = ('print', p[2])
+  p[0] = ('print', infos(p), p[2])
 
 def p_instruction_assign(p) :
   '''instruction : VARIABLE ASSIGNATION boolop
                  | VARIABLE ASSIGNATION intop
                  | VARIABLE ASSIGNATION stringop
                  | VARIABLE ASSIGNATION stringlist'''
-  p[0] = ('assign', p[1], p[3])
+  p[0] = ('assign', infos(p), p[1], p[3])
 
 def p_instruction_for(p) :
   '''instruction : FOR VARIABLE IN enumarable DO codeblock ENDFOR'''
-  p[0] = ('for', p[2], p[4], p[6])
+  p[0] = ('for', infos(p), p[2], p[4], p[6])
 
 def p_instruction_if(p) :
   '''instruction : IF boolop DO codeblock ENDIF'''
-  p[0] = ('if', p[2], p[4])
+  p[0] = ('if', infos(p), p[2], p[4])
 
 
 def p_boolop_boolop_bool(p) :
   '''boolop : boolop AND bool
             | boolop OR bool'''
-  p[0] = (p[2], p[1], p[3])
+  p[0] = (p[2], infos(p), p[1], p[3])
 
 def p_boolop_bool(p) :
   '''boolop : bool'''
@@ -79,12 +79,12 @@ def p_bool_comparison(p) :
 
 def p_comparison(p) :
   '''comparison : intop COMPARATOR intop'''
-  p[0] = (p[2], p[1], p[3])
+  p[0] = (p[2], infos(p), p[1], p[3])
 
 
 def p_stringop_concat(p) :
   '''stringop : string CONCATENATION stringop'''
-  p[0] = (p[2], p[1], p[3])
+  p[0] = (p[2], infos(p), p[1], p[3])
 
 def p_stringop_string(p) :
   '''stringop : string'''
@@ -122,7 +122,7 @@ def p_stringnext_stringnext(p) :
 def p_intop_plus_minus(p):
   '''intop : intop PLUS term
            | intop MINUS term'''
-  p[0] = (p[2], p[1] , p[3])
+  p[0] = (p[2], infos(p), p[1] , p[3])
 
 def p_intop_term(p):
   '''intop : term'''
@@ -131,7 +131,7 @@ def p_intop_term(p):
 def p_term_times_divide(p):
   '''term : term TIMES factor
           | term DIVIDE factor'''
-  p[0] = (p[2], p[1], p[3] )
+  p[0] = (p[2], infos(p), p[1], p[3] )
 
 def p_term_factor(p):
   '''term : factor'''
@@ -147,16 +147,18 @@ def p_factor_variable(p):
 
 def p_variable(p) :
   '''variable : VARIABLE'''
-  p[0] = ('variable', p[1])
+  p[0] = ('variable', infos(p), p[1])
 
 def p_error(p) :
-  print('ERROR syntax', lex.token_info(p))
+  print('ERROR syntax', infos(p))
 
 
 def parse_file(file_name) :
   lexer = lex.parse_file(file_name)
   return parser.parse(lexer=lexer)
 
+def infos(p) :
+  return lex.token_info(p.lexer)
 
 def init() :
   'read command line arguments and init parser'
