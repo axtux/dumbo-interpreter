@@ -1,8 +1,7 @@
 import sys
-import file
-from ply import yacc
-# import lex.py lexemes
-from lex import tokens, reset
+import ply.yacc
+import lex
+from lex import tokens
 
 """
     Grammar definition
@@ -41,7 +40,6 @@ def p_codeline_instruction(p) :
   '''codeline : instruction SEMICOLON'''
   p[0] = p[1]
 
-
 def p_instruction_print(p) :
   '''instruction : PRINT stringop'''
   p[0] = ('print', p[2])
@@ -60,6 +58,7 @@ def p_instruction_for(p) :
 def p_instruction_if(p) :
   '''instruction : IF boolop DO codeblock ENDIF'''
   p[0] = ('if', p[2], p[4])
+
 
 def p_boolop_boolop_bool(p) :
   '''boolop : boolop AND bool
@@ -84,7 +83,7 @@ def p_comparison(p) :
 
 
 def p_stringop_concat(p) :
-  '''stringop : stringop CONCATENATION string'''
+  '''stringop : string CONCATENATION stringop'''
   p[0] = (p[2], p[1], p[3])
 
 def p_stringop_string(p) :
@@ -151,29 +150,12 @@ def p_variable(p) :
   p[0] = ('variable', p[1])
 
 def p_error(p) :
-  yacc_error(p.lineno, 'Syntax error')
-
-
-"""
-    Custom functions
-"""
-def yacc_warning(lineno, message) :
-  print('WARNING', 'in file', filename, 'on line', lineno, ':', message)
-
-def yacc_error(lineno, message) :
-  print('ERROR:',  'in file', filename, 'on line', lineno, ':', message)
+  print('ERROR syntax', lex.token_info(p))
 
 
 def parse_file(file_name) :
-  global filename
-  filename = file_name
-  
-  data = file.get_contents(filename)
-  if data == None :
-    return print('file "{}" not readable'.format(filename))
-  
-  reset()
-  return parser.parse(data)
+  lexer = lex.parse_file(file_name)
+  return parser.parse(lexer=lexer)
 
 
 def init() :
@@ -186,7 +168,7 @@ def init() :
   
   # init parser with defined grammar in this file
   global parser
-  parser = yacc.yacc(debug=debug)
+  parser = ply.yacc.yacc(debug=debug)
 
 def main() :
   argc = len(sys.argv)
