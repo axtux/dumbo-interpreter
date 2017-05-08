@@ -29,7 +29,7 @@ def init() :
   # check operations dictionary for errors
   for name, desc in operations.items() :
     if not is_tuple(desc) :
-      print('expected operation desciption to be a tuple, {} given'.format(desc))
+      print('expected operation description to be a tuple, {} given'.format(desc))
     
     if len(desc) != 3 :
       print('expected 3 arguments per operation description, {} given for {}'.format(len(desc), name))
@@ -52,7 +52,7 @@ def init() :
 
 def reset() :
   '''
-  reset variables for next instructions to be executed in clean environement
+  reset variables for next instructions to be executed in clean environment
   '''
   global variables
   variables = {}
@@ -69,7 +69,7 @@ def execute(args) :
   Executes dumbo instruction or instructions array and return output.
   Return None and stop execution if an error occurs. Details will be printed to standard output.
   """
-  # exec each instruction in the array
+  # execute each instruction in the array
   if is_array(args) :
     r = ''
     for instruction in args :
@@ -102,7 +102,7 @@ start dumbo functions
 """
 def dumbo_print(var) :
   val = get_value(var)
-  return str(val)
+  return None if val == None else str(val)
 
 def dumbo_assign(name, value) :
   if is_var(name) :
@@ -155,7 +155,7 @@ def get_value(args) :
   args = args[1:]
   
   if not op in operations :
-    return print('unnown operation {}'.format(op))
+    return print('unknown operation {}'.format(op))
   
   (args_type, args_len, fct) = operations[op]
   if args_len != len(args) :
