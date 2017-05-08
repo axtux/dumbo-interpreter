@@ -123,8 +123,8 @@ def t_CODE_STRING(t) :
   r'\'(?:.|\n)*?\''
   # . does not match newline
   #r'\'[a-zA-Z0-9:,;&<>"./\\\n\t =_-]+\''
-  t.value = t.value[1:-1]
   update_line_info(t)
+  t.value = t.value[1:-1]
   return t
 
 t_CODE_ignore = ' |\t'
@@ -139,16 +139,18 @@ def t_NEWLINE(t) :
   update_line_info(t)
 
 def update_line_info(t) :
-  t.lexer.lineno += t.value.count('\n')
-  lastlineindex = t.value.rfind('\n')
-  if lastlineindex != -1 :
-    t.lexer.lastlinepos = t.lexpos + lastlineindex+1
+  line_rel_indexes = [i for i in range(len(t.value)) if t.value[i] == '\n']
+  # get absolute index of first character of each line
+  line_abs_indexes = list(map(lambda x : x+t.lexpos+1, line_rel_indexes))
+  
+  t.lexer.lineno += len(line_abs_indexes)
+  line_indexes.extend(line_abs_indexes)
 
 # special token containing ignored characters (not regex)
 t_ignore = ''
 
 def t_error(t) :
-  print("Skipping illegal character %s on line %s, column %s"%(t.value[0], t.lineno, t.lexpos-t.lexer.lastlinepos))
+  print('Skipping illegal character %s on line %s, char %s'.format(t.value[0], t.lineno, charno(t)))
   t.lexer.skip(1)
 
 
@@ -159,7 +161,30 @@ def reset() :
   # reset line references
   lexer.lineno = 1
   lexer.lexpos = 0
-  lexer.lastlinepos = 0
+  
+  global line_indexes
+  line_indexes = [0]
+
+def charno(t) :
+  'Return index of token relative to its line, starting at 1'
+  for i in line_indexes :
+    if i > t.lexpos :
+      break
+    last = i
+  
+  return t.lexpos-last+1
+
+def parse_file(filename) :
+  import file
+  
+  data = file.get_contents(filename)
+  if data == None :
+    return print('file "{}" not readable'.format(filename))
+  
+  reset()
+  lexer.input(data)
+  
+  return lexer
 
 def init() :
   'read command line arguments and init lexer'
@@ -176,20 +201,16 @@ def init() :
 
 
 def main() :
-  import file
-  
   argc = len(sys.argv)
   if argc < 2 :
     exit('Usage: python3 {} file_to_parse'.format(sys.argv[0]))
   
-  data = file.get_contents(sys.argv[1])
-  if data == None :
-    return print('file "{}" not readable'.format(filename))
+  lex = parse_file(sys.argv[1])
+  if lex == None :
+    return
   
-  lexer.input(data)
-  
-  for token in lexer :
-    print('line {} : {} : {!r} '.format(token.lineno, token.type, token.value))
+  for token in lex :
+    print('line {}, char {} : {} : {!r} '.format(token.lineno, charno(token), token.type, token.value))
 
 
 
