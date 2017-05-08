@@ -1,5 +1,6 @@
 import sys
-from ply import lex
+import file
+import ply.lex
 
 """
     States
@@ -127,7 +128,8 @@ def t_CODE_STRING(t) :
   t.value = t.value[1:-1]
   return t
 
-t_CODE_ignore = ' |\t'
+# special token containing ignored characters (not regex)
+t_CODE_ignore = ' \t'
 
 
 """
@@ -145,12 +147,13 @@ def update_line_info(t) :
   
   t.lexer.lineno += len(line_abs_indexes)
   line_indexes.extend(line_abs_indexes)
+  #t.lexer.linepos.extend(line_abs_indexes)
 
 # special token containing ignored characters (not regex)
 t_ignore = ''
 
 def t_error(t) :
-  print('Skipping illegal character %s on line %s, char %s'.format(t.value[0], t.lineno, charno(t)))
+  print('ERROR lexical {} : skipping illegal character "{}"'.format(token_info(t), t.value[0]))
   t.lexer.skip(1)
 
 
@@ -161,21 +164,31 @@ def reset() :
   # reset line references
   lexer.lineno = 1
   lexer.lexpos = 0
-  
+  #'''
   global line_indexes
   line_indexes = [0]
+  #'''
+  #lexer.linepos = [0]
+
+def token_info(t) :
+  file = filename if 'filename' in globals() else ''
+  line = 'last' if t == None else t.lineno
+  char = 'last' if t == None else charno(t)
+  return (file, line, char)
 
 def charno(t) :
   'Return index of token relative to its line, starting at 1'
   for i in line_indexes :
+  #for i in t.lexer.linepos : # lexer not available on string tokens (function tokens are ok)
     if i > t.lexpos :
       break
     last = i
   
   return t.lexpos-last+1
 
-def parse_file(filename) :
-  import file
+def parse_file(file_name) :
+  global filename
+  filename = file_name
   
   data = file.get_contents(filename)
   if data == None :
@@ -196,7 +209,7 @@ def init() :
   
   # init lexer with defined tokens in this file
   global lexer
-  lexer = lex.lex(debug=debug)
+  lexer = ply.lex.lex(debug=debug)
   reset()
 
 
@@ -210,7 +223,7 @@ def main() :
     return
   
   for token in lex :
-    print('line {}, char {} : {} : {!r} '.format(token.lineno, charno(token), token.type, token.value))
+    print('{} : {} : {!r} '.format(token_info(token), token.type, token.value))
 
 
 
