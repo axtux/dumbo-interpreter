@@ -24,9 +24,14 @@ def p_subprogram_code(p) :
   p[0] = p[1]
 
 
+
 def p_code_codeblock(p) :
   '''code : CODESTART codeblock CODEEND'''
   p[0] = p[2]
+
+def p_code_empty(p) :
+  '''code : CODESTART CODEEND'''
+  p[0] = []
 
 def p_codeblock_codeblock_codeline(p) :
   '''codeblock : codeline codeblock'''
@@ -41,15 +46,19 @@ def p_codeline_instruction(p) :
   p[0] = p[1]
 
 def p_instruction_print(p) :
-  '''instruction : PRINT stringop'''
+  '''instruction : PRINT value'''
   p[0] = ('print', infos(p), p[2])
 
 def p_instruction_assign(p) :
-  '''instruction : VARIABLE ASSIGNATION boolop
-                 | VARIABLE ASSIGNATION intop
-                 | VARIABLE ASSIGNATION stringop
-                 | VARIABLE ASSIGNATION stringlist'''
+  '''instruction : VARIABLE ASSIGNATION value'''
   p[0] = ('assign', infos(p), p[1], p[3])
+
+def p_value_allop(p) :
+  '''value : boolop
+           | intop
+           | stringop
+           | stringlist'''
+  p[0] = p[1]
 
 def p_instruction_for(p) :
   '''instruction : FOR VARIABLE IN enumarable DO codeblock ENDFOR'''

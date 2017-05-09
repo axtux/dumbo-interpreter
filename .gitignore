@@ -96,3 +96,9 @@ parsetab.py
 .project
 .pydevproject
 .settings
+
+# LaTeX
+*.aux
+*.synctex.gz
+*.toc
+
