@@ -1,5 +1,6 @@
 \documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
+\usepackage{listings}
 
 %opening
 \title{Rapport du projet de compilation}
@@ -22,9 +23,66 @@ Cependant, nous avons procédé à quelques ajouts et modifications afin d'attei
 l'énoncé.\\
 Pour les opérateurs arithmétiques, nous avons pris la peine de définir dans la grammaire les variables ``term'' ainsi que ``factor'' afin d'éviter
 le cas où la grammaire serait ambiguë.\\
+\begin{lstlisting}
+def p_intop_plus_minus(p):
+  '''intop : intop PLUS term
+           | intop MINUS term'''
+  p[0] = (p[2], infos(p), p[1] , p[3])
+
+def p_intop_term(p):
+  '''intop : term'''
+  p[0] = p[1]
+
+def p_term_times_divide(p):
+  '''term : term TIMES factor
+          | term DIVIDE factor'''
+  p[0] = (p[2], infos(p), p[1], p[3] )
+
+def p_term_factor(p):
+  '''term : factor'''
+  p[0] = p[1]
+
+def p_factor_num(p):
+  '''factor : INTEGER'''
+  p[0] = p[1]
+
+def p_factor_variable(p):
+  '''factor : variable'''
+  p[0] = p[1]
+
+def p_variable(p) :
+  '''variable : VARIABLE'''
+  p[0] = ('variable', infos(p), p[1])
+
+\end{lstlisting}
+\newpage
 Concernant l'ajout des booleans, nous nous sommes inspirés du cours. Nous commençons avec la variable boolop qui dérive sur une autre variable
 boolop, un opérateur ``AND'' ou ``OR'' ainsi que la variable bool. Cette dernière correpond au lexème boolean ou à la variable ``comparison''.
 Qui est le résultat de deux variables ``intop'' muni d'un lexème comparator.
+
+\begin{lstlisting}
+def p_boolop_boolop_bool(p) :
+  '''boolop : boolop AND bool
+            | boolop OR bool'''
+  p[0] = (p[2], infos(p), p[1], p[3])
+
+def p_boolop_bool(p) :
+  '''boolop : bool'''
+  p[0] = p[1]
+
+def p_bool_boolean(p) :
+  '''bool : BOOLEAN'''
+  p[0] = p[1]
+
+def p_bool_comparison(p) :
+  '''bool : comparison'''
+  p[0] = p[1]
+
+def p_comparison(p) :
+  '''comparison : intop COMPARATOR intop'''
+  p[0] = (p[2], infos(p), p[1], p[3])
+\end{lstlisting}
+
 \subsection{Le ``For''}
 \subsection{Le ``If''}
 \section{Problèmes rencontrés}
