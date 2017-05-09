@@ -77,11 +77,16 @@
 		\item output\_file : fichier de sortie contenant le fichier template dans lequel les données ont été insérées.
 	\end{itemize}
 	
-	\section{Grammaire}
+	\section{Grammaire du Dumbo}
 	Voici la grammaire du langage :\\
-	\begin{math}
-		<program> \longrightarrow <subprogram> <program>
-	\end{math}
+	\begin{tabular}{|l l l|}
+		\hline
+		
+		<program> & $\longrightarrow$ & <subprogram> | <subprogram> <program>\\
+		<program> & $\longrightarrow$ & <subprogram> <program>\\
+		
+		\hline
+	\end{tabular}
 	
 	Nous avons essayé de respecter au mieux la grammaire donnée, initialement dans l'énoncé du projet.
 	Cependant, nous avons procédé à quelques ajouts et modifications afin d'atteindre les objectis demandés dans 
