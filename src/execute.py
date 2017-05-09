@@ -75,10 +75,18 @@ def args_len(fct) :
   return len(inspect.signature(fct).parameters)
 
 
+
 def execute(args) :
   """
   Executes dumbo instruction or instructions array and return output.
   Return None and stop execution if an error occurs. Details will be printed to standard output.
+  
+  Supported functions :
+    ('print', infos, variable_or_value)
+    ('assign', infos, variable_name, variable_value)
+    ('for', infos, variable_name_in_instructions, variable_array_or_array, instructions_list)
+    ('if', infos, bool_condition_or_comparison, insturctions_list)
+    
   """
   # execute each instruction in the array
   if is_array(args) :
