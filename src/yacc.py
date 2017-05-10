@@ -7,8 +7,8 @@ from lex import tokens
     Grammar definition
 """
 
-def p_program_subprogram_program(p) :
-  '''program : subprogram program'''
+def p_program_program_subprogram(p) :
+  '''program : program subprogram'''
   p[0] = p[1] + p[2]
 
 def p_program_subprogram(p) :
@@ -29,9 +29,9 @@ def p_subprogram_empty(p) :
   p[0] = []
 
 
-def p_codeblock_codeline_codeblock(p) :
-  '''codeblock : codeline codeblock'''
-  p[0] = [p[1]] + p[2]
+def p_codeblock_codeblock_codeline(p) :
+  '''codeblock : codeblock codeline'''
+  p[0] = p[1] + [p[2]]
 
 def p_codeblock_codeline(p) :
   '''codeblock : codeline'''
@@ -75,9 +75,9 @@ def p_variable(p) :
   p[0] = ('variable', infos(p), p[1])
 
 
-def p_boolop_bool_boolop(p) :
-  '''boolop : bool AND boolop
-            | bool OR boolop'''
+def p_boolop_boolop_bool(p) :
+  '''boolop : boolop AND bool
+            | boolop OR bool'''
   p[0] = (p[2], infos(p), p[1], p[3])
 
 def p_boolop_bool(p) :
