@@ -1,101 +1,12 @@
 \documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
-<<<<<<< HEAD
-\usepackage{listings}
-
-%opening
-\title{Rapport du projet de compilation}
-\author{Maazouz Mehdi, Lecocq Alexis}
-
-\begin{document}
-
-\maketitle
-\textbf{Annee Academique 2016-2017}\\
-\tableofcontents
-\newpage
-
-\section{Introduction}
-Dans le cadre du cours de Compilation donné en 3 ème Bachelier, nous avons dû réaliser un programme
-capable de générer un fichier contenant du texte en fonction de certaines données reçues en paramètre.
-Pour ce faire, le langage de programmation utilisé est le Python.
-\section{Grammaire}
-Nous avons essayé de respecter au mieux la grammaire donnée, initialement dans l'énoncé du projet.
-Cependant, nous avons procédé à quelques ajouts et modifications afin d'atteindre les objectis demandés dans 
-l'énoncé.\\
-Pour les opérateurs arithmétiques, nous avons pris la peine de définir dans la grammaire les variables ``term'' ainsi que ``factor'' afin d'éviter
-le cas où la grammaire serait ambiguë.\\
-\begin{lstlisting}
-def p_intop_plus_minus(p):
-  '''intop : intop PLUS term
-           | intop MINUS term'''
-  p[0] = (p[2], infos(p), p[1] , p[3])
-
-def p_intop_term(p):
-  '''intop : term'''
-  p[0] = p[1]
-
-def p_term_times_divide(p):
-  '''term : term TIMES factor
-          | term DIVIDE factor'''
-  p[0] = (p[2], infos(p), p[1], p[3] )
-
-def p_term_factor(p):
-  '''term : factor'''
-  p[0] = p[1]
-
-def p_factor_num(p):
-  '''factor : INTEGER'''
-  p[0] = p[1]
-
-def p_factor_variable(p):
-  '''factor : variable'''
-  p[0] = p[1]
-
-def p_variable(p) :
-  '''variable : VARIABLE'''
-  p[0] = ('variable', infos(p), p[1])
-
-\end{lstlisting}
-\newpage
-Concernant l'ajout des booleans, nous nous sommes inspirés du cours. Nous commençons avec la variable boolop qui dérive sur une autre variable
-boolop, un opérateur ``AND'' ou ``OR'' ainsi que la variable bool. Cette dernière correpond au lexème boolean ou à la variable ``comparison''.
-Qui est le résultat de deux variables ``intop'' muni d'un lexème comparator.
-
-\begin{lstlisting}
-def p_boolop_boolop_bool(p) :
-  '''boolop : boolop AND bool
-            | boolop OR bool'''
-  p[0] = (p[2], infos(p), p[1], p[3])
-
-def p_boolop_bool(p) :
-  '''boolop : bool'''
-  p[0] = p[1]
-
-def p_bool_boolean(p) :
-  '''bool : BOOLEAN'''
-  p[0] = p[1]
-
-def p_bool_comparison(p) :
-  '''bool : comparison'''
-  p[0] = p[1]
-
-def p_comparison(p) :
-  '''comparison : intop COMPARATOR intop'''
-  p[0] = (p[2], infos(p), p[1], p[3])
-\end{lstlisting}
-
-\subsection{Le ``For''}
-\subsection{Le ``If''}
-\section{Problèmes rencontrés}
-\section{Conclusion}
-=======
 \usepackage[french]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
+\usepackage{listings}
 
 \usepackage{fancyhdr}
 \usepackage{vmargin}
->>>>>>> ae8b87ef60b416a42c9253eea1450df2968aa71f
 
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
@@ -166,12 +77,164 @@ def p_comparison(p) :
 		\item template\_file : fichier dumbo contenant la présentation des données ;
 		\item output\_file : fichier de sortie contenant le fichier template dans lequel les données ont été insérées.
 	\end{itemize}
-	
+	\newpage
 	\section{Grammaire}
 	Voici la grammaire du langage :\\
-	\begin{math}
-		<program> \longrightarrow <subprogram> <program>
-	\end{math}
+	\begin{lstlisting}
+	  def p_program_subprogram_program(p) :
+	    '''program : subprogram program'''
+	     p[0] = p[1] + p[2]
+
+	  def p_program_subprogram(p) :
+	    '''program : subprogram'''
+	    p[0] = p[1]
+
+	def p_subprogram_text(p) :
+	  '''subprogram : TEXT'''
+	  p[0] = [('print', infos(p), p[1])]
+
+      def p_subprogram_code(p) :
+	 '''subprogram : code'''
+	  p[0] = p[1]
+
+
+
+    def p_code_codeblock(p) :
+      '''code : CODESTART codeblock CODEEND'''
+      p[0] = p[2]
+
+    def p_code_empty(p) :
+      '''code : CODESTART CODEEND'''
+      p[0] = []
+
+    def p_codeblock_codeblock_codeline(p) :
+      '''codeblock : codeline codeblock'''
+    p[0] = [p[1]] + p[2]
+
+    def p_codeblock_codeline(p) :
+    '''codeblock : codeline'''
+    p[0] = [p[1]]
+
+    def p_codeline_instruction(p) :
+    '''codeline : instruction SEMICOLON'''
+    p[0] = p[1]
+
+    def p_instruction_print(p) :
+      '''instruction : PRINT value'''
+      p[0] = ('print', infos(p), p[2])
+
+    def p_instruction_assign(p) :
+      '''instruction : VARIABLE ASSIGNATION value'''
+      p[0] = ('assign', infos(p), p[1], p[3])
+
+    def p_value_allop(p) :
+      '''value : boolop
+           | intop
+           | stringop
+           | stringlist'''
+      p[0] = p[1]
+
+    def p_instruction_for(p) :
+      '''instruction : FOR VARIABLE IN enumarable DO codeblock ENDFOR'''
+      p[0] = ('for', infos(p), p[2], p[4], p[6])
+
+    def p_instruction_if(p) :
+      '''instruction : IF boolop DO codeblock ENDIF'''
+      p[0] = ('if', infos(p), p[2], p[4])
+
+
+    def p_boolop_boolop_bool(p) :
+      '''boolop : boolop AND bool
+            | boolop OR bool'''
+      p[0] = (p[2], infos(p), p[1], p[3])
+
+    def p_boolop_bool(p) :
+      '''boolop : bool'''
+      p[0] = p[1]
+
+    def p_bool_boolean(p) :
+      '''bool : BOOLEAN'''
+      p[0] = p[1]
+
+    def p_bool_comparison(p) :
+      '''bool : comparison'''
+      p[0] = p[1]
+
+    def p_comparison(p) :
+      '''comparison : intop COMPARATOR intop'''
+      p[0] = (p[2], infos(p), p[1], p[3])
+
+
+    def p_stringop_concat(p) :
+      '''stringop : string CONCATENATION stringop'''
+      p[0] = (p[2], infos(p), p[1], p[3])
+
+    def p_stringop_string(p) :
+      '''stringop : string'''
+      p[0] = p[1]
+
+
+    def p_string_var(p) :
+      '''string : variable'''
+      p[0] = p[1]
+
+    def p_string_string(p) :
+      '''string : STRING'''
+      p[0] = p[1]
+
+    def p_enumarable_stringlist(p) :
+      '''enumarable : stringlist'''
+      p[0] = p[1]
+
+    def p_enumarable_variable(p) :
+      '''enumarable : variable'''
+      p[0] = p[1]
+
+    def p_stringlist(p) :
+      '''stringlist : LEFT_PARENTHESE stringnext RIGHT_PARENTHESE'''
+      p[0] = p[2]
+
+    def p_stringnext_string(p) :
+      '''stringnext : string'''
+      p[0] = [p[1]]
+
+    def p_stringnext_stringnext(p) :
+      '''stringnext : string COMA stringnext'''
+      p[0] = [p[1]] + p[3]
+
+    def p_intop_plus_minus(p):
+      '''intop : intop PLUS term
+           | intop MINUS term'''
+      p[0] = (p[2], infos(p), p[1] , p[3])
+
+    def p_intop_term(p):
+      '''intop : term'''
+      p[0] = p[1]
+
+    def p_term_times_divide(p):
+      '''term : term TIMES factor
+          | term DIVIDE factor'''
+      p[0] = (p[2], infos(p), p[1], p[3] )
+
+    def p_term_factor(p):
+      '''term : factor'''
+      p[0] = p[1]
+
+    def p_factor_num(p):
+      '''factor : INTEGER'''
+      p[0] = p[1]
+
+    def p_factor_variable(p):
+      '''factor : variable'''
+      p[0] = p[1]
+
+    def p_variable(p) :
+      '''variable : VARIABLE'''
+      p[0] = ('variable', infos(p), p[1])
+
+    def p_error(p) :
+      print('ERROR syntax', infos(p))
+	\end{lstlisting}
 	
 	Nous avons essayé de respecter au mieux la grammaire donnée, initialement dans l'énoncé du projet.
 	Cependant, nous avons procédé à quelques ajouts et modifications afin d'atteindre les objectis demandés dans 
@@ -181,8 +244,19 @@ def p_comparison(p) :
 	Concernant l'ajout des booleans, nous nous sommes inspirés du cours. Nous commençons avec la variable boolop qui dérive sur une autre variable
 	boolop, un opérateur ``AND'' ou ``OR'' ainsi que la variable bool. Cette dernière correpond au lexème boolean ou à la variable ``comparison''.
 	Qui est le résultat de deux variables ``intop'' muni d'un lexème comparator.
-	\subsection{Le ``For''}
 	\subsection{Le ``If''}
-	\section{Problèmes rencontrés}
+	Pour gérer le ``IF'', nous avons dû procéder un peu différemment. Il y a la variable boolop qui, étant déjà expliqué plus haut, correpond à la condition.
+	Ainsi que la variable codeblock qui va correspondre au code executé si la condition est réalisée. Pour se faire , la variable codeblock va dériver
+	sur une variable codeline qui elle même va dériver sur les variables codeline codeblock. A noter que codeline peut dériver sur une instruction
+	suivie du lexème ``SEMICOLON''. L'instruction peut correspondre soit, à l'assignation d'une valeur, à un print, un ``FOR'' voire à un nouveau ``IF''.
+	\\
+	\subsection{Le ``For''}
+	Concernant la grammaire associé au ``FOR'', nous commençons avec le lexème ``VARIABLE'' et la variable enumarable qui, en dérivant, correpond à une liste.
+	Et nous terminons avec la variable codeblock correspondant au code à executer (expliqué dans la section du ``IF'').
+	\\
 	\section{Conclusion}
+	Pour conclure, ce projet nous a permis d'approfondir le cours et de pouvoir mettre le pratique ce que nous avions vus durant les cours théoriques 
+	et d'exercices. Il nous a également ammener à réfléchir de manière différente pour pouvoir gérer correctement certaines implémentations demandées
+	initialement dans l'énoncé. Nous pensons notamment à la gestion du ``FOR''.
+	
 \end{document}
