@@ -12,12 +12,41 @@ class DumboTests(unittest.TestCase):
     actual_output = execute(code)
     self.assertEqual(expected_output, actual_output, 'intput : "{}"'.format(input))
   
-  """subprogram test"""
+  
+  """subprogram tests"""
   def test_text(self):
     self.input_expect("text_only", "text_only")
   
+  def test_code(self):
+    self.input_expect("{{ print 'c1';}}", "c1")
+  
+  def test_code_empty(self):
+    self.input_expect("{{ }}", "")
+  
   def test_text_code(self):
     self.input_expect("t1{{ print 'c1';}}t2{{ print 'c2';}}", "t1c1t2c2")
+  
+  
+  """for tests"""
+  def test_for_stringlist(self):
+    self.input_expect("{{ for var in ('s1', 's2', 's3') do print var; endfor; }}", "s1s2s3")
+  
+  def test_for_variable(self):
+    self.input_expect("{{ list := ('s1', 's2', 's3'); for var in list do print var; endfor; }}", "s1s2s3")
+  
+  
+  """if tests"""
+  def test_if_bool(self):
+    self.input_expect("{{ if true do print 'ok'; endif; }}", "ok")
+    self.input_expect("{{ if false do print 'ok'; endif; }}", "")
+  
+  def test_if_variable(self):
+    self.input_expect("{{ var := true; if var do print 'ok'; endif; }}", "ok")
+    self.input_expect("{{ var := false; if var do print 'ok'; endif; }}", "")
+  
+  def test_if_comparison(self):
+    self.input_expect("{{ if 1 < 2 do print 'ok'; endif; }}", "ok")
+    self.input_expect("{{ if 1 > 2 do print 'ok'; endif; }}", "")
   
   
   """boolop tests"""
@@ -96,7 +125,7 @@ class DumboTests(unittest.TestCase):
     self.input_expect("{{ var := 's1'; print var; }}", "s1")
     self.input_expect("{{ var := 's1'.'s2'; print var.'s3'; }}", "s1s2s3")
   
-
+  
 
 if __name__ == '__main__':
   unittest.main()
