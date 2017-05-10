@@ -77,6 +77,7 @@
 		\item template\_file : fichier dumbo contenant la présentation des données ;
 		\item output\_file : fichier de sortie contenant le fichier template dans lequel les données ont été insérées.
 	\end{itemize}
+	
 	\newpage
 	\section{Grammaire du Dumbo}
 	Voici la grammaire du langage :\\
@@ -84,8 +85,8 @@
 		\hline
 		
 		<program> & $\longrightarrow$ & <program> <subprogram> | <subprogram>\\
-		<subprogram> & $\longrightarrow$ & <text> | \{\{ <codeblock> \}\} | \{\{ \}\}\\
-		<codeblock> & $\longrightarrow$ & <codeblock> <codeline> | <codeline> \\
+		<subprogram> & $\longrightarrow$ & <text> | \{\{ <codeblock> \}\} \\
+		<codeblock> & $\longrightarrow$ & <codeblock> <codeline> | <codeline> | $\varepsilon$\\
 		<codeline> & $\longrightarrow$ & <instruction> ;\\
 		<instruction> & $\longrightarrow$ & print <value>\\
 		<instruction> & $\longrightarrow$ & <variable> := <value>\\
@@ -111,11 +112,23 @@
 		<text>  & $\longrightarrow$ & ([\^\space \{]|\{[\^\space \{])+\\
 		<variable> & $\longrightarrow$ & [A-Za-z\_][A-Za-z0-9\_]+\\
 		<integer\_regex> & $\longrightarrow$ & [0-9]+\\
-		<string\_regex> & $\longrightarrow$ & '(.|\textbackslash n)*'\\
+		<string\_regex> & $\longrightarrow$ & '[\^\space ']*'\\
 		\hline
 	\end{tabular}
+	Cette grammaire correspond à la grammaire fournie dans l'énoncé avec quelques ajouts :
+	\begin{itemize}
+		\item <text> peut contenir tous les caractères qui ne correspondent pas à l'ouverture d'un bloc de code. En effet, <text> contient une suite de longueur minimum 1 de soit une lettre qui n'est pas l'accolade ouvrante soit une accolade ouvrante suivie d'une lettre qui n'est pas l'accolade ouvrante. Ceci rend le moteur de template plus flexible.
+		\item <string\_regex> peut désormais contenir n'importe quel caractère qui n'est pas un simple guillemet.
+		\item <codeblock> peut être vide afin de traiter l'exemple 3 fourni sans erreur.
+		\item print peut afficher n'importe quelle valeur.
+		\item n'importe quelle valeur peut être assignée à une variable.
+		\item le if permet d'exécuter une série d'instruction sous une condition booléenne.
+		\item les booléennes ainsi que les opérateurs booléens and et for ont été ajoutés (précédence gauche).
+		\item les entiers ont été ajoutés ainsi que les opérations entières + - * / (précédence comme en mathématique).
+		
+		
+	\end{itemize}
 	
-	<text> contient une suite de longueur minimum 1 de soit une lettre qui n'est pas l'accolade ouvrante soit une accolade ouvrante suivie d'une lettre qui n'est pas l'accolade ouvrante.
 	
 	
 	
