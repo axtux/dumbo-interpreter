@@ -8,10 +8,7 @@ def init() :
   Also store the number of arguments accepted by each function into functions_args dictionary.
   Storing references avoid future lookups for functions and arguments length.
   """
-  global variables, functions
-  
-  # initialize variables dictionary
-  variables = {}
+  reset()
   
   # dynamically build functions dictionary storing all functions from this module
   '''
@@ -20,6 +17,7 @@ def init() :
     ...
   }
   '''
+  global functions
   functions = {}
   for name, fct in globals().items() :
     if not callable(fct) :
@@ -29,49 +27,40 @@ def init() :
   # check operations dictionary for errors
   for name, desc in operations.items() :
     if not is_tuple(desc) :
-      print('expected operation description to be a tuple, {} given'.format(desc))
-      break
+      unexpected_exit('operation description to be a tuple', desc, name)
     
     if len(desc) != 4 :
-      print('expected 4 arguments per operation description, {} given for {}'.format(len(desc), name))
-      break
+      unexpected_exit('4 arguments per operation description', len(desc), name)
     
     (args_type, args_l, fct, infos) = desc
     if not is_string(args_type) :
-      print('expected args_type to be string, {} given for {}'.format(args_type, name))
-      break
+      unexpected_exit('args_type to be string', args_type, name)
     
     if not 'is_'+args_type in functions :
-      print('unknown type {} for {}'.format(args_type, name))
-      break
+      unexpected_exit('args_type to be type from _is_ module', args_type, name)
     
     if not is_int(args_l) :
-      print('expected args_len to be string, {} given for {}'.format(args_l, name))
-      break
+      unexpected_exit('args_len to be int', args_l, name)
     
     if args_l < 0 :
-      print('expected args_len to be >= 0, {} given for {}'.format(args_l, name))
-      break
+      unexpected_exit('args_len to be >= 0', args_l, name)
     
     if not callable(fct) :
-      print('expected function to be callable, {} given for {}'.format(fct, name))
-      break
+      unexpected_exit('function to be callable', fct, name)
     
     if not is_bool(infos) :
-      print('expected incl_infos to be boolean, {} given for {}'.format(fct, name))
-      break
+      unexpected_exit('incl_infos to be boolean', infos, name)
+
+def unexpected_exit(expected, given, name):
+  exit('expected {}, {} given for {}'.format(expected, given, name))
 
 def reset() :
-  '''
-  reset variables for next instructions to be executed in clean environment
-  '''
+  """reset variables for next instructions to be executed in clean environment"""
   global variables
   variables = {}
 
 def args_len(fct) :
-  """
-  get the number of arguments from function signature
-  """
+  """get the number of arguments from function signature"""
   return len(inspect.signature(fct).parameters)
 
 
