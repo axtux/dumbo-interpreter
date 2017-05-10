@@ -171,7 +171,7 @@ def reset() :
   #lexer.linepos = [0]
 
 def token_info(t) :
-  file = filename if 'filename' in globals() else ''
+  file = filename if 'filename' in globals() else 'input'
   line = 'last' if t == None else t.lineno
   char = 'last' if t == None else charno(t)
   return (file, line, char)
@@ -201,10 +201,12 @@ def parse_file(file_name) :
 
 def init() :
   'read command line arguments and init lexer'
+  global debug
   debug = 0
   
   for arg in sys.argv :
     if arg == '-d' or arg == '--debug' :
+      sys.argv.remove(arg)
       debug = 1
   
   # init lexer with defined tokens in this file
