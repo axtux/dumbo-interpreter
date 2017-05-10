@@ -174,18 +174,18 @@ def get_value(args) :
   args = args[2:]
   
   if not op in operations :
-    return print('{} unknown operation {}'.format(infos, op))
+    return error('{} unknown operation {}'.format(infos, op))
   
   (args_type, args_len, fct, incl_infos) = operations[op]
   if args_len != len(args) :
-    return print('{} operation {} expected {} arguments, {} given'.format(infos, op, args_len, len(args)))
+    return error('{} operation {} expected {} arguments, {} given'.format(infos, op, args_len, len(args)))
   
   # recursively get value on operation arguments
   args = tuple(map(get_value, args))
   
   (_, check) = functions['is_'+args_type]
   if not all(map(check, args)) :
-    return print('{} operation {} expected arguments of type {}, got {}'.format(infos, op, args_type, args))
+    return error('{} operation {} expected arguments of type {}, got {}'.format(infos, op, args_type, args))
   
   if incl_infos :
     args = (infos,) + args
