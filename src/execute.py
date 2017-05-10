@@ -109,6 +109,7 @@ start dumbo functions
 """
 def dumbo_print(infos, var) :
   val = get_value(var)
+  if is_bool(val) : return str(val).lower()
   return None if val == None else str(val)
 
 def dumbo_assign(infos, name, value) :
