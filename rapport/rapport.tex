@@ -3,6 +3,7 @@
 \usepackage[french]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
+\usepackage{listings}
 
 \usepackage{fancyhdr}
 \usepackage{vmargin}
@@ -76,7 +77,7 @@
 		\item template\_file : fichier dumbo contenant la présentation des données ;
 		\item output\_file : fichier de sortie contenant le fichier template dans lequel les données ont été insérées.
 	\end{itemize}
-	
+	\newpage
 	\section{Grammaire du Dumbo}
 	Voici la grammaire du langage :\\
 	\begin{tabular}{|l l l|}
@@ -84,7 +85,38 @@
 		
 		<program> & $\longrightarrow$ & <subprogram> | <subprogram> <program>\\
 		<program> & $\longrightarrow$ & <subprogram> <program>\\
-		
+		<subprogram> & $\longrightarrow$ & TEXT\\
+		<subprogram> & $\longrightarrow$ & <code>\\
+		<code> & $\longrightarrow$ & CODESTART <codeblock> CODEEND\\
+		<code> & $\longrightarrow$ & CODESTART CODEEND\\
+		<codeblock> & $\longrightarrow$ & <codeline> <codeblock>\\
+		<codeblock> & $\longrightarrow$ & <codeline> \\
+		<codeline> & $\longrightarrow$ & <instruction> SEMICOLON\\
+		<instruction> & $\longrightarrow$ & PRINT <value>\\
+		<instruction> & $\longrightarrow$ & VARIABLE ASSIGNATION <value>\\
+		<value> & $\longrightarrow$ & <boolop> | <intop> | <stringop> | <stringlist>\\
+		<instruction> & $\longrightarrow$ & FOR VARIABLE IN <enumarable> DO <codeblock> ENDFOR\\
+		<instruction> & $\longrightarrow$ & IF <boolop> DO <codeblock> ENDIF\\
+		<boolop> & $\longrightarrow$ & <boolop> AND <bool> | <boolop> OR <bool>\\
+		<boolop> & $\longrightarrow$ & <bool>\\
+		<bool> & $\longrightarrow$ & BOOLEAN\\
+		<bool> & $\longrightarrow$ & <comparison>\\
+		<comparison> & $\longrightarrow$ & <intop> COMPARATOR <intop>\\
+		<stringop> & $\longrightarrow$ & <string> CONCATENATION <stringop>\\
+		<stringop> & $\longrightarrow$ & <string>\\
+		<string> & $\longrightarrow$ & <variable>\\
+		<string> & $\longrightarrow$ & STRING\\
+		<enumarable> & $\longrightarrow$ & <stringlist>\\
+		<enumarable> & $\longrightarrow$ & <variable>\\
+		<stringlist> & $\longrightarrow$ & LEFT_PARENTHESE <stringnext> RIGHT_PARENTHESE\\
+		<stringnext> & $\longrightarrow$ & <string>\\
+		<stringnext> & $\longrightarrow$ & <string> COMA <stringnext>\\
+		<intop> & $\longrightarrow$ & <intop> PLUS <term> | <intop> MINUS <term>\\
+		<intop> & $\longrightarrow$ & <term>\\
+		<term> & $\longrightarrow$ & <term> TIMES <factor> | <term> DIVIDE <factor> \\
+		<term> & $\longrightarrow$ & <factor>\\
+		<factor> & $\longrightarrow$ & INTEGER\\
+		<factor> & $\longrightarrow$ & VARIABLE\\
 		\hline
 	\end{tabular}
 	
@@ -96,8 +128,23 @@
 	Concernant l'ajout des booleans, nous nous sommes inspirés du cours. Nous commençons avec la variable boolop qui dérive sur une autre variable
 	boolop, un opérateur ``AND'' ou ``OR'' ainsi que la variable bool. Cette dernière correpond au lexème boolean ou à la variable ``comparison''.
 	Qui est le résultat de deux variables ``intop'' muni d'un lexème comparator.
-	\subsection{Le ``For''}
 	\subsection{Le ``If''}
-	\section{Problèmes rencontrés}
+	Pour gérer le ``IF'', nous avons dû procéder un peu différemment. Le lexème ``IF'' démarre l'instruction. Il y a la variable boolop qui, 
+	étant déjà expliqué plus haut, correpond à la condition.
+	Ainsi que la variable codeblock qui va correspondre au code executé si la condition est réalisée. Pour se faire , la variable codeblock va dériver
+	sur une variable codeline qui elle même va dériver sur les variables codeline codeblock. A noter que codeline peut dériver sur une instruction
+	suivie du lexème ``SEMICOLON''. L'instruction peut correspondre soit, à l'assignation d'une valeur, à un print, un ``FOR'' voire à un nouveau ``IF''.
+	Le lexème ENDIF met fin à l'instruction.
+	\\
+	\subsection{Le ``For''}
+	Concernant la grammaire associé au ``FOR'', nous commençons avec le lexème ``FOR'' qui démarre l'instruction.
+	On remarque aussi le lexème ``VARIABLE'' et la variable enumarable qui, en dérivant, correpond à une liste.
+	Vient ensuite la variable codeblock correspondant au code à executer (expliqué dans la section du ``IF''). Le lexème ``ENDFOR'' 
+	met fin à l'instruction.
+	\\
 	\section{Conclusion}
+	Pour conclure, ce projet nous a permis d'approfondir le cours et de pouvoir mettre le pratique ce que nous avions vus durant les cours théoriques 
+	et d'exercices. Il nous a également ammener à réfléchir de manière différente pour pouvoir gérer correctement certaines implémentations demandées
+	initialement dans l'énoncé. Nous pensons notamment à la gestion du ``FOR''.
+	
 \end{document}
