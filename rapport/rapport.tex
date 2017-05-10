@@ -83,42 +83,41 @@
 	\begin{tabular}{|l l l|}
 		\hline
 		
-		<program> & $\longrightarrow$ & <subprogram> | <subprogram> <program>\\
-		<program> & $\longrightarrow$ & <subprogram> <program>\\
-		<subprogram> & $\longrightarrow$ & TEXT\\
-		<subprogram> & $\longrightarrow$ & <code>\\
-		<code> & $\longrightarrow$ & CODESTART <codeblock> CODEEND\\
-		<code> & $\longrightarrow$ & CODESTART CODEEND\\
-		<codeblock> & $\longrightarrow$ & <codeline> <codeblock>\\
-		<codeblock> & $\longrightarrow$ & <codeline> \\
-		<codeline> & $\longrightarrow$ & <instruction> SEMICOLON\\
-		<instruction> & $\longrightarrow$ & PRINT <value>\\
-		<instruction> & $\longrightarrow$ & VARIABLE ASSIGNATION <value>\\
-		<value> & $\longrightarrow$ & <boolop> | <intop> | <stringop> | <stringlist>\\
-		<instruction> & $\longrightarrow$ & FOR VARIABLE IN <enumarable> DO <codeblock> ENDFOR\\
-		<instruction> & $\longrightarrow$ & IF <boolop> DO <codeblock> ENDIF\\
-		<boolop> & $\longrightarrow$ & <boolop> AND <bool> | <boolop> OR <bool>\\
-		<boolop> & $\longrightarrow$ & <bool>\\
-		<bool> & $\longrightarrow$ & BOOLEAN\\
-		<bool> & $\longrightarrow$ & <comparison>\\
-		<comparison> & $\longrightarrow$ & <intop> COMPARATOR <intop>\\
-		<stringop> & $\longrightarrow$ & <string> CONCATENATION <stringop>\\
-		<stringop> & $\longrightarrow$ & <string>\\
-		<string> & $\longrightarrow$ & <variable>\\
-		<string> & $\longrightarrow$ & STRING\\
-		<enumarable> & $\longrightarrow$ & <stringlist>\\
-		<enumarable> & $\longrightarrow$ & <variable>\\
-		<stringlist> & $\longrightarrow$ & LEFT_PARENTHESE <stringnext> RIGHT_PARENTHESE\\
-		<stringnext> & $\longrightarrow$ & <string>\\
-		<stringnext> & $\longrightarrow$ & <string> COMA <stringnext>\\
-		<intop> & $\longrightarrow$ & <intop> PLUS <term> | <intop> MINUS <term>\\
-		<intop> & $\longrightarrow$ & <term>\\
-		<term> & $\longrightarrow$ & <term> TIMES <factor> | <term> DIVIDE <factor> \\
-		<term> & $\longrightarrow$ & <factor>\\
-		<factor> & $\longrightarrow$ & INTEGER\\
-		<factor> & $\longrightarrow$ & VARIABLE\\
+		<program> & $\longrightarrow$ & <program> <subprogram> | <subprogram>\\
+		<subprogram> & $\longrightarrow$ & <text> | \{\{ <codeblock> \}\} | \{\{ \}\}\\
+		<codeblock> & $\longrightarrow$ & <codeblock> <codeline> | <codeline> \\
+		<codeline> & $\longrightarrow$ & <instruction> ;\\
+		<instruction> & $\longrightarrow$ & print <value>\\
+		<instruction> & $\longrightarrow$ & <variable> := <value>\\
+		<instruction> & $\longrightarrow$ & for <variable> in <variable> do <codeblock> endfor\\
+		<instruction> & $\longrightarrow$ & for <variable> in <stringlist> do <codeblock> endfor\\
+		<instruction> & $\longrightarrow$ & if <boolop> do <codeblock> endif\\
+		
+		<value> & $\longrightarrow$ & <variable> | <boolop> | <intop> | <stringop> | <stringlist>\\
+		
+		<boolop> & $\longrightarrow$ & <boolop> and <bool> | <boolop> or <bool> | <bool>\\
+		<bool> & $\longrightarrow$ & true | false | <variable> | <intop> <comparator> <intop>\\
+		<comparator> & $\longrightarrow$ & < | > | = | !=\\
+		
+		<stringop> & $\longrightarrow$ & <stringop> . <string> | <string>\\
+		<string> & $\longrightarrow$ & <variable> | <string\_regex>\\
+		<stringlist> & $\longrightarrow$ & () | ( <stringseq> )\\
+		<stringseq> & $\longrightarrow$ & <stringseq> , <string> | <string>\\
+		<intop> & $\longrightarrow$ & <intop> + <term> | <intop> - <term> | <term>\\
+		<term> & $\longrightarrow$ & <term> * <factor> | <term> / <factor> | <factor>\\
+		<factor> & $\longrightarrow$ & <integer\_regex> | <variable>\\
+		&&\\
+		Expressions régulières :&&\\
+		<text>  & $\longrightarrow$ & ([\^\space \{]|\{[\^\space \{])+\\
+		<variable> & $\longrightarrow$ & [A-Za-z\_][A-Za-z0-9\_]+\\
+		<integer\_regex> & $\longrightarrow$ & [0-9]+\\
+		<string\_regex> & $\longrightarrow$ & '(.|\textbackslash n)*'\\
 		\hline
 	\end{tabular}
+	
+	<text> contient une suite de longueur minimum 1 de soit une lettre qui n'est pas l'accolade ouvrante soit une accolade ouvrante suivie d'une lettre qui n'est pas l'accolade ouvrante.
+	
+	
 	
 	Nous avons essayé de respecter au mieux la grammaire donnée, initialement dans l'énoncé du projet.
 	Cependant, nous avons procédé à quelques ajouts et modifications afin d'atteindre les objectis demandés dans 
