@@ -67,7 +67,7 @@ def p_value(p) :
            | stringop
            | stringlist'''
   # value -> variable is already included in boolop, intop and stringop
-  # but this makes things clear
+  # but this is a shortcut that makes things clear
   p[0] = p[1]
 
 def p_variable(p) :
