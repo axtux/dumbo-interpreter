@@ -82,7 +82,8 @@ class DumboTests(unittest.TestCase):
     self.input_expect("{{ print 2*3+4*5; }}", "26")
     self.input_expect("{{ print 2+3*4+5; }}", "19")
   
-  """print variables"""
+  
+  """variable assignation"""
   def test_print_variable_bool(self):
     self.input_expect("{{ var := true; print var; }}", "true")
     self.input_expect("{{ var := false; print var; }}", "false")
