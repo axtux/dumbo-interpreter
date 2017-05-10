@@ -129,14 +129,18 @@
 	boolop, un opérateur ``AND'' ou ``OR'' ainsi que la variable bool. Cette dernière correpond au lexème boolean ou à la variable ``comparison''.
 	Qui est le résultat de deux variables ``intop'' muni d'un lexème comparator.
 	\subsection{Le ``If''}
-	Pour gérer le ``IF'', nous avons dû procéder un peu différemment. Il y a la variable boolop qui, étant déjà expliqué plus haut, correpond à la condition.
+	Pour gérer le ``IF'', nous avons dû procéder un peu différemment. Le lexème ``IF'' démarre l'instruction. Il y a la variable boolop qui, 
+	étant déjà expliqué plus haut, correpond à la condition.
 	Ainsi que la variable codeblock qui va correspondre au code executé si la condition est réalisée. Pour se faire , la variable codeblock va dériver
 	sur une variable codeline qui elle même va dériver sur les variables codeline codeblock. A noter que codeline peut dériver sur une instruction
 	suivie du lexème ``SEMICOLON''. L'instruction peut correspondre soit, à l'assignation d'une valeur, à un print, un ``FOR'' voire à un nouveau ``IF''.
+	Le lexème ENDIF met fin à l'instruction.
 	\\
 	\subsection{Le ``For''}
-	Concernant la grammaire associé au ``FOR'', nous commençons avec le lexème ``VARIABLE'' et la variable enumarable qui, en dérivant, correpond à une liste.
-	Et nous terminons avec la variable codeblock correspondant au code à executer (expliqué dans la section du ``IF'').
+	Concernant la grammaire associé au ``FOR'', nous commençons avec le lexème ``FOR'' qui démarre l'instruction.
+	On remarque aussi le lexème ``VARIABLE'' et la variable enumarable qui, en dérivant, correpond à une liste.
+	Vient ensuite la variable codeblock correspondant au code à executer (expliqué dans la section du ``IF''). Le lexème ``ENDFOR'' 
+	met fin à l'instruction.
 	\\
 	\section{Conclusion}
 	Pour conclure, ce projet nous a permis d'approfondir le cours et de pouvoir mettre le pratique ce que nous avions vus durant les cours théoriques 
