@@ -14,7 +14,6 @@
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
 \begin{document}
-	
 	\pagestyle{fancy}
 	\fancyhf{}
 	\rhead{MAAZOUZ Mehdi, LECOCQ Alexis}
@@ -79,14 +78,18 @@
 	\end{itemize}
 	
 	\newpage
-	\section{Grammaire du Dumbo}
+	\section{Langage Dumbo}
+	
+	\subsection{Grammaire utilisée}
+	Afin de simplifier la lecture du tableau, nous avons utilisé des expressions régulières dans certaines règles.
+	Ces dernières sont situées dans la partie basse du tableau pour éviter toute confusion avec les autres règles.
 	Voici la grammaire du langage :\\
 	\begin{tabular}{|l l l|}
 		\hline
 		
 		<program> & $\longrightarrow$ & <program> <subprogram> | <subprogram>\\
-		<subprogram> & $\longrightarrow$ & <text> | \{\{ <codeblock> \}\} \\
-		<codeblock> & $\longrightarrow$ & <codeblock> <codeline> | <codeline> | $\varepsilon$\\
+		<subprogram> & $\longrightarrow$ & <text> | \{\{ <codeblock> \}\} | \{\{ \}\} \\
+		<codeblock> & $\longrightarrow$ & <codeblock> <codeline> | <codeline>\\
 		<codeline> & $\longrightarrow$ & <instruction> ;\\
 		<instruction> & $\longrightarrow$ & print <value>\\
 		<instruction> & $\longrightarrow$ & <variable> := <value>\\
@@ -115,48 +118,144 @@
 		<string\_regex> & $\longrightarrow$ & '[\^\space ']*'\\
 		\hline
 	\end{tabular}
-	Cette grammaire correspond à la grammaire fournie dans l'énoncé avec quelques ajouts :
+	
+	Dans cette grammaire, <value> $\longrightarrow$ <variable> est optionnel car cette réduction peut être donnée à trois reprises par <value> $\longrightarrow$ <variable> | <boolop> | <intop>. Cependant, définir cette règle en premier dans yacc permet de "court-circuiter" les autres réductions et cela est plus clair pour le lecteur.
+	
+	\newpage
+	\subsection{Différences avec la grammaire fournie}
+	Cette grammaire correspond à la grammaire fournie dans l'énoncé avec quelques modifications :
 	\begin{itemize}
-		\item <text> peut contenir tous les caractères qui ne correspondent pas à l'ouverture d'un bloc de code. En effet, <text> contient une suite de longueur minimum 1 de soit une lettre qui n'est pas l'accolade ouvrante soit une accolade ouvrante suivie d'une lettre qui n'est pas l'accolade ouvrante. Ceci rend le moteur de template plus flexible.
-		\item <string\_regex> peut désormais contenir n'importe quel caractère qui n'est pas un simple guillemet.
-		\item <codeblock> peut être vide afin de traiter l'exemple 3 fourni sans erreur.
-		\item print peut afficher n'importe quelle valeur.
-		\item n'importe quelle valeur peut être assignée à une variable.
-		\item le if permet d'exécuter une série d'instruction sous une condition booléenne.
-		\item les booléennes ainsi que les opérateurs booléens and et for ont été ajoutés (précédence gauche).
-		\item les entiers ont été ajoutés ainsi que les opérations entières + - * / (précédence comme en mathématique).
+		\item <codeblock> peut être vide afin de traiter l'exemple 3 fourni en annexe sans erreur.
 		
+		\item les booléennes true et false ainsi que les opérateurs booléens and et or ont été ajoutés avec une précédence gauche.
 		
+		\item le if permet d'exécuter une série d'instruction seulement si une condition booléenne est vraie.
+		
+		\item les entiers ont été ajoutés ainsi que les opérations entières + - * / avec la même précédence qu'en mathématique.
+		
+		\item print peut afficher, en plus d'une chaîne de caractères, un booléen, un entier ou une liste.
+		
+		\item une variable peut contenir, en plus d'une chaînes de caractères, un booléen, un entier ou une liste.
+		
+		\item <text> peut contenir tous les caractères qui ne correspondent pas à l'ouverture d'un bloc de code.
+		Ceci rend le moteur de template plus flexible (pas de caractère interdit).
+		En effet, <text> contient une suite de longueur minimale 1 de :
+		\begin{itemize}
+			\item soit une lettre qui n'est pas l'accolade ouvrante ;
+			\item soit une accolade ouvrante suivie d'une lettre qui n'est pas l'accolade ouvrante.
+		\end{itemize}
+		
+		\item <variable> ne peut pas commencer par un chiffre afin de différencier une variable d'un entier.
+		
+		\item <string\_regex> peut désormais contenir n'importe quel caractère qui n'est pas un simple guillemet (pas de caractère interdit).
 	\end{itemize}
 	
+	\subsection{Précédence des opérateurs}
+	Nous avons établi une grammaire non ambiguë qui respecte les précédences annoncées (gauche pour les booléens et mathématique pour les entiers). Nous n'avons donc pas eu besoin d'utiliser la variable "precedence" fournie par yacc.
 	
+	\newpage
+	\section{Interpréteur dumbo}
 	
+	\subsection{Note sur les instructions "if" et "for"}
+	Avant l'introduction des instructions "if" et "for", l'exécution du code se faisait en même temps que l'analyse syntaxique.
+	Cependant, cette dernière attribue une valeur aux composants d'une règle avant d'entrer dans la fonction de cette règle.
+	Il n'était alors pas possible d'empêcher l'exécution d'une instruction if car le code était exécuté avant d'entrer dans la fonction.
+	De manière analogue, la variable de boucle déclarée dans la fonction for ne pouvait être connue des instructions du for étant donné que ces instructions étaient exécutées avant la fonction for.
+	Nous avons donc décidé d'opter pour une structure plus modulaire avec compilation avant exécution.
 	
-	Nous avons essayé de respecter au mieux la grammaire donnée, initialement dans l'énoncé du projet.
-	Cependant, nous avons procédé à quelques ajouts et modifications afin d'atteindre les objectis demandés dans 
-	l'énoncé.\\
-	Pour les opérateurs arithmétiques, nous avons pris la peine de définir dans la grammaire les variables ``term'' ainsi que ``factor'' afin d'éviter
-	le cas où la grammaire serait ambiguë.\\
-	Concernant l'ajout des booleans, nous nous sommes inspirés du cours. Nous commençons avec la variable boolop qui dérive sur une autre variable
-	boolop, un opérateur ``AND'' ou ``OR'' ainsi que la variable bool. Cette dernière correpond au lexème boolean ou à la variable ``comparison''.
-	Qui est le résultat de deux variables ``intop'' muni d'un lexème comparator.
-	\subsection{Le ``If''}
-	Pour gérer le ``IF'', nous avons dû procéder un peu différemment. Le lexème ``IF'' démarre l'instruction. Il y a la variable boolop qui, 
-	étant déjà expliqué plus haut, correpond à la condition.
-	Ainsi que la variable codeblock qui va correspondre au code executé si la condition est réalisée. Pour se faire , la variable codeblock va dériver
-	sur une variable codeline qui elle même va dériver sur les variables codeline codeblock. A noter que codeline peut dériver sur une instruction
-	suivie du lexème ``SEMICOLON''. L'instruction peut correspondre soit, à l'assignation d'une valeur, à un print, un ``FOR'' voire à un nouveau ``IF''.
-	Le lexème ENDIF met fin à l'instruction.
-	\\
-	\subsection{Le ``For''}
-	Concernant la grammaire associé au ``FOR'', nous commençons avec le lexème ``FOR'' qui démarre l'instruction.
-	On remarque aussi le lexème ``VARIABLE'' et la variable enumarable qui, en dérivant, correpond à une liste.
-	Vient ensuite la variable codeblock correspondant au code à executer (expliqué dans la section du ``IF''). Le lexème ``ENDFOR'' 
-	met fin à l'instruction.
-	\\
+	\subsection{Structure du programme}
+	
+	L'exécution d'un script dumbo se déroule en 3 étapes :
+	\begin{itemize}
+		\item Analyse lexicale
+		\item Analyse syntaxique
+		\item Analyse sémantique/exécution
+	\end{itemize}
+	
+	\subsubsection{Analyse lexicale}
+	La première étape consiste à analyser l'ensemble des lexèmes présents dans le fichier source.
+	Cette étape est réalisée dans le fichier lex.py. Pour de plus amples informations sur les lexèmes utilisés, nous vous invitons à consulter ce fichier.\\
+	Entrée : un ensemble ordonné de caractères, le contenu du fichier source.\\
+	Sortie : un ensemble ordonné de lexèmes.
+	
+	\subsubsection{Analyse syntaxique}
+	La seconde étape consiste à analyser la syntaxe du fichier et compiler les fonctions/opérations.
+	Une fonction/opération compilée est en fait un tuple python dont :
+	\begin{itemize}
+		\item le premier élément est une chaîne de caractère représentant la fonction/opération ;
+		\item le second élément est un tuple contenant des informations sur l'emplacement de la fonction/opération afin de faciliter le débogage :
+		\begin{enumerate}
+			\item le nom du fichier ou input ;
+			\item le numéro de ligne ;
+			\item la position sur la ligne.
+		\end{enumerate}
+		\item les éléments suivants sont les arguments de la fonction/opération (leur nombre est variable).
+	\end{itemize}
+	Entrée : un ensemble ordonné de lexèmes.\\
+	Sortie : un ensemble ordonné de fonctions/opérations.
+	
+	\subsubsection{Analyse sémantique/exécution}
+	La troisième et dernière étape consiste à exécuter les fonctions et évaluer les opérations.
+	Étant donné que les variables sont dynamiquement typées, l'analyse sémantique est également réalisée à cette étape.\\
+	Entrée : un ensemble ordonné de fonctions/opérations.\\
+	Sortie : un ensemble ordonné de caractères, la sortie de l'exécution des instructions.
+	
+	\newpage
+	\section{Manuel d'utilisation}
+	Le programme se lance en ligne de commande grâce à python3 avec l'ensemble des paramètres définis dans l'introduction. Exemple d'utilisation du moteur de template :
+	
+	\begin{center}
+	\begin{tabular}{|l|}
+		\hline \\
+		\$ python3 dumbo\_interpreter.py data\_file template\_file output\_file [-d|-{}-debug]\\
+		\\
+		\hline
+	\end{tabular}
+	\end{center}
+	
+	Cette commande va initialiser les variables présentes dans le fichier "data\_file" et les conserver pour exécuter le fichier "template\_file". La sortie de ce dernier sera écrite dans le fichier "output\_file". Si une erreur survient, les détails seront affichés dans la console. L'argument -d ou -{}-debug est optionnel. S'il est présent, lex et yacc seront exécutés en mode debug (des informations supplémentaires seront affichées dans la console).
+	
+	A des fin de débogage, vous pouvez utiliser les commandes suivantes :
+	
+	\begin{center}
+	\begin{tabular}{|l|}
+		\hline \\
+		\$ python3 lex.py dumbo\_file [-d|-{}-debug]\\
+		\\
+		\hline
+	\end{tabular}
+	\end{center}
+	
+	Cette commande va afficher les lexèmes détectés dans le ficher "dumbo\_file" ainsi que leur position. L'argument -d ou -{}-debug a le même effet que pour le script "dumbo\_interpreter.py".
+	
+	\begin{center}
+	\begin{tabular}{|l|}
+		\hline \\
+		\$ python3 yacc.py dumbo\_file [-d|-{}-debug]\\
+		\\
+		\hline
+	\end{tabular}
+	\end{center}
+	
+	Cette commande va afficher la liste d'instructions contenues dans le fichier "dumbo\_file". L'argument -d ou -{}-debug a le même effet que pour le script "dumbo\_interpreter.py".
+	
+	\begin{center}
+	\begin{tabular}{|l|}
+		\hline \\
+		\$ python3 execute.py dumbo\_file [-d|-{}-debug]\\
+		\\
+		\hline
+	\end{tabular}
+	\end{center}
+	
+	Cette commande va exécuter les instructions contenues du fichier "dumbo\_file" et afficher la sortie du programme dans la console. L'argument -d ou -{}-debug a le même effet que pour le script "dumbo\_interpreter.py".
+	
+	Parce qu'une ligne de code vaut mieux qu'un long discours, nous vous invitons à lire le code pour avoir des exemples d'utilisation si vous souhaitez utiliser les modules lex, yacc et execute, 
+	
+	\newpage
 	\section{Conclusion}
-	Pour conclure, ce projet nous a permis d'approfondir le cours et de pouvoir mettre le pratique ce que nous avions vus durant les cours théoriques 
-	et d'exercices. Il nous a également ammener à réfléchir de manière différente pour pouvoir gérer correctement certaines implémentations demandées
-	initialement dans l'énoncé. Nous pensons notamment à la gestion du ``FOR''.
+	Nous avons bien réalisé l'objectif fixé dans l'introduction, à savoir, créer un moteur de template à l'aide d'un nouveau langage.
+	Nous avons ainsi eu l'occasion de mettre en pratique et d'approfondir les concepts vus au cours théorique.
+	Nous tenons à remercier la titulaire BRUYÈRE Véronique ainsi que l'assistant DECAN Alexandre pour la patience et le dévouement dont ils nous ont fait part cette année.
 	
 \end{document}
