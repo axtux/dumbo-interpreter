@@ -34,7 +34,7 @@
 				
 				\Large{Rapport de projet de compilation}\\[2cm]
 				
-				\Large{Annee Academique 2016-2017}\\[2cm]
+				\Large{Année académique 2016-2017}\\[2cm]
 				
 				% Author and supervisor
 				\begin{minipage}{0.4\textwidth}
@@ -70,7 +70,7 @@
 	
 	L'objectif du projet est de réaliser un moteur de template à l'aide d'un langage créé pour l'occasion : le dumbo. Nous en décrirons la grammaire dans un prochain chapitre.
 	
-	Un moteur de template est principalement utilisé pour séparer les données de la manière de les représenter. Notre script dumbo\_interpreter.py doit donc prendre trois arguments :
+	Un moteur de template est principalement utilisé pour séparer les données de la manière de les représenter. Notre script dumbo\_interpreter.py doit recevoir trois arguments :
 	\begin{itemize}
 		\item data\_file : fichier dumbo contenant les données ;
 		\item template\_file : fichier dumbo contenant la présentation des données ;
@@ -123,29 +123,28 @@
 	
 	\newpage
 	\subsection{Différences avec la grammaire fournie}
-	Cette grammaire correspond à la grammaire fournie dans l'énoncé avec quelques modifications :
+	Cette grammaire correspond à la grammaire fournie dans l'énoncé, excepté quelques modifications :
 	\begin{itemize}
-		\item <codeblock> peut être vide afin de traiter l'exemple 3 fourni en annexe sans erreur.
+		\item <codeblock> peut être vide afin de traiter l'exemple 3 fourni en annexe sans erreur ;
 		
-		\item les booléennes true et false ainsi que les opérateurs booléens and et or ont été ajoutés avec une précédence gauche.
+		\item les booléens true et false ainsi que les opérateurs booléens "and" et "or" ont été ajoutés avec une précédence gauche ;
 		
-		\item le if permet d'exécuter une série d'instruction seulement si une condition booléenne est vraie.
+		\item le if permet d'exécuter une série d'instructions seulement si une condition booléenne est vraie ;
 		
-		\item les entiers ont été ajoutés ainsi que les opérations entières + - * / avec la même précédence qu'en mathématique.
+		\item les entiers, ainsi que les opérations entières "+", "-", "*" et "/", ont été ajoutés avec la même précédence qu'en mathématique ;
 		
-		\item print peut afficher, en plus d'une chaîne de caractères, un booléen, un entier ou une liste.
+		\item print peut afficher, en plus d'une chaîne de caractères, un booléen, un entier ou une liste ;
 		
-		\item une variable peut contenir, en plus d'une chaînes de caractères, un booléen, un entier ou une liste.
+		\item une variable peut contenir, en plus d'une chaînes de caractères, un booléen, un entier ou une liste ;
 		
-		\item <text> peut contenir tous les caractères qui ne correspondent pas à l'ouverture d'un bloc de code.
-		Ceci rend le moteur de template plus flexible (pas de caractère interdit).
+		\item <text> peut contenir tous les caractères qui ne correspondent pas à l'ouverture d'un bloc de code, ce qui rend le moteur de template plus flexible (pas de caractère interdit).
 		En effet, <text> contient une suite de longueur minimale 1 de :
 		\begin{itemize}
 			\item soit une lettre qui n'est pas l'accolade ouvrante ;
-			\item soit une accolade ouvrante suivie d'une lettre qui n'est pas l'accolade ouvrante.
+			\item soit une accolade ouvrante suivie d'une lettre qui n'est pas l'accolade ouvrante ;
 		\end{itemize}
 		
-		\item <variable> ne peut pas commencer par un chiffre afin de différencier une variable d'un entier.
+		\item <variable> ne peut pas commencer par un chiffre afin de différencier une variable d'un entier ;
 		
 		\item <string\_regex> peut désormais contenir n'importe quel caractère qui n'est pas un simple guillemet (pas de caractère interdit).
 	\end{itemize}
@@ -159,8 +158,8 @@
 	\subsection{Note sur les instructions "if" et "for"}
 	Avant l'introduction des instructions "if" et "for", l'exécution du code se faisait en même temps que l'analyse syntaxique.
 	Cependant, cette dernière attribue une valeur aux composants d'une règle avant d'entrer dans la fonction de cette règle.
-	Il n'était alors pas possible d'empêcher l'exécution d'une instruction if car le code était exécuté avant d'entrer dans la fonction.
-	De manière analogue, la variable de boucle déclarée dans la fonction for ne pouvait être connue des instructions du for étant donné que ces instructions étaient exécutées avant la fonction for.
+	Il était alors impossible d'empêcher l'exécution d'une instruction "if" car le code était exécuté avant d'entrer dans la fonction.
+	De manière analogue, la variable de boucle déclarée dans la fonction for ne pouvait être connue des instructions du "for", étant donné que ces instructions étaient exécutées avant la fonction "for".
 	Nous avons donc décidé d'opter pour une structure plus modulaire avec compilation avant exécution.
 	
 	\subsection{Structure du programme}
@@ -182,12 +181,12 @@
 	La seconde étape consiste à analyser la syntaxe du fichier et compiler les fonctions/opérations.
 	Une fonction/opération compilée est en fait un tuple python dont :
 	\begin{itemize}
-		\item le premier élément est une chaîne de caractère représentant la fonction/opération ;
+		\item le premier élément est une chaîne de caractères représentant la fonction/opération ;
 		\item le second élément est un tuple contenant des informations sur l'emplacement de la fonction/opération afin de faciliter le débogage :
 		\begin{enumerate}
 			\item le nom du fichier ou input ;
 			\item le numéro de ligne ;
-			\item la position sur la ligne.
+			\item la position sur la ligne ;
 		\end{enumerate}
 		\item les éléments suivants sont les arguments de la fonction/opération (leur nombre est variable).
 	\end{itemize}
@@ -215,7 +214,7 @@
 	
 	Cette commande va initialiser les variables présentes dans le fichier "data\_file" et les conserver pour exécuter le fichier "template\_file". La sortie de ce dernier sera écrite dans le fichier "output\_file". Si une erreur survient, les détails seront affichés dans la console. L'argument -d ou -{}-debug est optionnel. S'il est présent, lex et yacc seront exécutés en mode debug (des informations supplémentaires seront affichées dans la console).
 	
-	A des fin de débogage, vous pouvez utiliser les commandes suivantes :
+	À des fins de débogage, vous pouvez utiliser les commandes suivantes :
 	
 	\begin{center}
 	\begin{tabular}{|l|}
@@ -250,12 +249,12 @@
 	
 	Cette commande va exécuter les instructions contenues du fichier "dumbo\_file" et afficher la sortie du programme dans la console. L'argument -d ou -{}-debug a le même effet que pour le script "dumbo\_interpreter.py".
 	
-	Parce qu'une ligne de code vaut mieux qu'un long discours, nous vous invitons à lire le code pour avoir des exemples d'utilisation si vous souhaitez utiliser les modules lex, yacc et execute, 
+	Parce qu'une ligne de code vaut mieux qu'un long discours, nous vous invitons à lire le code pour avoir des exemples d'utilisation si vous souhaitez utiliser les modules lex, yacc et execute.
 	
 	\newpage
 	\section{Conclusion}
-	Nous avons bien réalisé l'objectif fixé dans l'introduction, à savoir, créer un moteur de template à l'aide d'un nouveau langage.
-	Nous avons ainsi eu l'occasion de mettre en pratique et d'approfondir les concepts vus au cours théorique.
-	Nous tenons à remercier la titulaire BRUYÈRE Véronique ainsi que l'assistant DECAN Alexandre pour la patience et le dévouement dont ils nous ont fait part cette année.
+	Nous avons bien réalisé l'objectif fixé dans l'introduction, à savoir créer un moteur de template à l'aide d'un nouveau langage.
+	Nous avons ainsi eu l'occasion de mettre en pratique et d'approfondir les concepts vus au cours théorique notamment les grammaires non ambiguë, les analyses lexicale, syntaxique et sémantique.
+	Nous tenons à remercier la titulaire BRUYÈRE Véronique ainsi que l'assistant DECAN Alexandre pour la patience (notamment envers les arrivées tardives) et le dévouement dont ils ont fait preuve cette année.
 	
 \end{document}
